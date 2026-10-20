@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>DEPOSIT</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--gold:#f5c451;--bg:#090909;--card:#171717;--muted:#999}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:white;font-family:Arial,sans-serif;padding:18px 15px 35px}
+header{display:flex;justify-content:space-between;align-items:center;margin:8px 0 25px}
+.logo{font-size:25px;font-weight:900;letter-spacing:2px;color:var(--gold)}
+.badge{font-size:10px;color:var(--gold);border:1px solid #725a22;padding:6px 9px;border-radius:20px}
+.balance{background:linear-gradient(135deg,#292115,#141414);border:1px solid #6b5321;border-radius:18px;padding:20px;margin-bottom:24px}
+.label{color:var(--muted);font-size:13px}
+.amount{font-size:30px;font-weight:bold;margin:10px 0 17px}
+button{cursor:pointer;border:0;font-weight:bold;border-radius:11px;padding:13px}
+.gold{background:var(--gold);color:#17120a}
+.outline{background:transparent;border:1px solid #625027;color:var(--gold)}
+.actions{display:flex;gap:10px}
+.actions button{flex:1}
+h2{font-size:18px;margin:25px 0 13px}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.game{background:var(--card);border:1px solid #292929;border-radius:16px;padding:17px 14px;min-height:120px;text-align:left;color:white}
+.icon{font-size:29px;display:block;margin-bottom:13px}
+.game strong{display:block;font-size:16px}
+.game small{display:block;color:var(--muted);margin-top:6px}
+.panel{background:var(--card);padding:17px;border-radius:15px;margin-top:20px}
+.panel button{width:100%;margin-top:12px}
+.notice{font-size:11px;color:var(--muted);line-height:1.5;margin-top:24px;text-align:center}
+#play{display:none;background:#151515;border:1px solid #57451d;border-radius:17px;padding:18px;margin-top:20px}
+#play h2{margin-top:0}
+#play button{margin:4px}
+#mineboard{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:14px}
+.tile{background:#292929;color:var(--gold);padding:12px 0;border-radius:7px;font-size:18px}
+.result{color:var(--gold);min-height:24px;margin:12px 0}
+input{background:#222;color:white;border:1px solid #555;padding:12px;width:100%;border-radius:9px;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">DEPOSIT</div>
+  <div class="badge">● DEMO MODE</div>
+</header>
+
+<section class="balance">
+  <div class="label">ТВОЙ ДЕМО-БАЛАНС</div>
+  <div class="amount"><span id="balance">100 000</span> <span style="color:#f5c451;font-size:16px">UZS</span></div>
+  <div class="actions">
+    <button class="gold" onclick="deposit()">＋ Пополнить</button>
+    <button class="outline" onclick="withdraw()">Вывести ↗</button>
+  </div>
+</section>
+
+<h2>🎮 Игры</h2>
+<div class="games">
+  <button class="game" onclick="openGame('Mines')"><span class="icon">💣</span><strong>Mines</strong><small>Найди безопасные клетки</small></button>
+  <button class="game" onclick="openGame('Aviator')"><span class="icon">✈️</span><strong>Aviator</strong><small>Демо-множитель</small></button>
+  <button class="game" onclick="openGame('Slots')"><span class="icon">🎰</span><strong>Slots</strong><small>Испытай удачу</small></button>
+  <button class="game" onclick="openGame('Dice')"><span class="icon">🎲</span><strong>Dice</strong><small>Бросок кубика</small></button>
+</div>
+
+<section id="play">
+  <h2 id="gameTitle">Игра</h2>
+  <div class="label">Демо-ставка (виртуальные UZS)</div>
+  <input id="bet" type="number" min="100" step="100" value="1000">
+  <div id="gameContent"></div>
+  <div class="result" id="result"></div>
+  <button class="outline" onclick="closeGame()">← Назад</button>
+</section>
+
+<section class="panel">
+  <strong>👤 Профиль игрока</strong>
+  <p class="label" id="user">Telegram Mini App</p>
+  <p class="label">Валюта: UZS · Режим: демоверсия</p>
+</section>
+
+<p class="notice">DEPOSIT DEMO · Только виртуальные средства. Пополнение и вывод реальных денег не выполняются.</p>
+
+<script>
+const tg=window.Telegram?.WebApp;
+if(tg){tg.ready();tg.expand();if(tg.initDataUnsafe?.user){
+const u=tg.initDataUnsafe.user;
+document.getElementById('user').textContent='Игрок: '+(u.first_name||'Telegram');
+}}
+let balance=100000, current='', mines=[], revealed=0;
+const fmt=n=>Math.floor(n).toLocaleString('ru-RU');
+function update(){document.getElementById('balance').textContent=fmt(balance)}
+function deposit(){alert('Демо-режим: реальные платежи не подключены.')}
+function withdraw(){alert('Демо-режим: вывод средств недоступен.')}
+function openGame(name){
+current=name;document.getElementById('play').style.display='block';
+document.getElementById('gameTitle').textContent=name;
+document.getElementById('result').textContent='';
+const c=document.getElementById('gameContent');
+if(name==='Mines'){
+mines=Array.from({length:25},(_,i)=>i).sort(()=>Math.random()-.5).slice(0,5);revealed=0;
+c.innerHTML='<p class="label">На поле 5 мин. Начни с любой клетки.</p><div id="mineboard">'+Array.from({length:25},(_,i)=>`<button class="tile" onclick="tapMine(${i},this)">?</button>`).join('')+'</div><button class="gold" onclick="cashout()">Забрать демо-выигрыш</button>';
+}else if(name==='Aviator'){
+c.innerHTML='<p class="label">Нажми старт и попробуй забрать выигрыш до падения.</p><button class="gold" onclick="startAviator()">🚀 Старт</button><button class="outline" onclick="cashout()">Забрать</button><div id="flight" style="font-size:30px;color:#f5c451;margin:15px"></div>';
+}else if(name==='Slots'){
+c.innerHTML='<p style="font-size:40px;text-align:center" id="reels">🍒 ⭐ 🍋</p><button class="gold" onclick="spin()">Крутить · демо</button>';
+}else{
+c.innerHTML='<p class="label">Угадай, будет ли результат выше 3.</p><button class="gold" onclick="dice()">🎲 Бросить кубик</button>';
+}
+document.getElementById('play').scrollIntoView({behavior:'smooth'});
+}
+function closeGame(){document.getElementById('play').style.display='none'}
+function getBet(){let b=Math.floor(Number(document.getElementById('bet').value));if(!Number.isFinite(b)||b<100||b>balance){document.getElementById('result').textContent='Проверь ставку и баланс.';return 0}balance-=b;update();return b}
+function tapMine(i,el){
+if(el.disabled)return;let b=getBet();if(!b)return;
+el.disabled=true;
+if(mines.includes(i)){el.textContent='💣';document.getElementById('result').textContent='Мина! Демо-раунд окончен.';document.querySelectorAll('.tile').forEach(x=>x.disabled=true)}
+else{el.textContent='💎';revealed++;balance+=b*1.2;update();document.getElementById('result').textContent='Безопасно! Демо-бонус начислен.'}
+}
+function cashout(){document.getElementById('result').textContent='Раунд завершён. Это демонстрация.'}
+function startAviator(){
+let b=getBet();if(!b)return;
+let f=document.getElementById('flight'),m=1,t=0;f.textContent='1.00×';
+let timer=setInterval(()=>{t++;m+=Math.random()*.18;f.textContent=m.toFixed(2)+'×';if(t>12||Math.random()<.12){clearInterval(timer);document.getElementById('result').textContent='Полёт окончен. Демонстрационный раунд.'}},500)
+}
+function spin(){
+let b=getBet();if(!b)return;
+let symbols=['🍒','⭐','🍋','💎','7️⃣'];let s=Array.from({length:3},()=>symbols[Math.floor(Math.random()*symbols.length)]);
+document.getElementById('reels').textContent=s.join(' ');
+if(s.every(x=>x===s[0])){balance+=b*3;document.getElementById('result').textContent='Три одинаковых! Демо-бонус ×3.'}else{document.getElementById('result').textContent='Попробуй ещё раз в деморежиме.'}update()
+}
+function dice(){let b=getBet();if(!b)return;let n=1+Math.floor(Math.random()*6);document.getElementById('result').textContent='Выпало '+n+'. '+(n>3?'Демо-бонус начислен!':'В этот раз без бонуса.');if(n>3)balance+=b*1.8;update()}
+</script>
+</body>
+</html>
