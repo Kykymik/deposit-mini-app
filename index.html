@@ -189,7 +189,7 @@ footer{text-align:center;color:#6f788b;padding:25px 12px;font-size:12px}
 <header>
   <div class="logo">DEPOSIT <span>2.0</span></div>
   <div class="header-right">
-    <div id="headerBalance" class="balance">0 сум</div>
+    <div id="headerBalance" class="balance">0 UZS</div>
     <button id="profileBtn" class="secondary hidden" onclick="showProfile()">Профиль</button>
     <button id="logoutBtn" class="secondary hidden" onclick="logout()">Выйти</button>
   </div>
@@ -219,7 +219,7 @@ footer{text-align:center;color:#6f788b;padding:25px 12px;font-size:12px}
 
   <section id="appScreen" class="hidden">
     <div class="hero">
-      <h1>Играй и выигрывай <span>сум!</span></h1>
+      <h1>Играй и выигрывай <span>UZS!</span></h1>
       <p>Выбирай игру, указывай виртуальную ставку и наслаждайся анимациями.</p>
     </div>
     <div class="notice">⚠️ Демоверсия: здесь используются только виртуальные суммы. Пополнение, вывод средств и реальные денежные ставки не поддерживаются.</div>
@@ -237,8 +237,8 @@ footer{text-align:center;color:#6f788b;padding:25px 12px;font-size:12px}
       <div class="layout" style="margin-top:24px">
         <div class="panel">
           <h2>🎁 Ежедневный бонус</h2>
-          <p style="color:var(--muted)">Получай 100 сум виртуального баланса раз в сутки.</p>
-          <button id="bonusBtn" class="primary" onclick="claimBonus()">Получить бонус +100 сум</button>
+          <p style="color:var(--muted)">Получай 100 UZS виртуального баланса раз в сутки.</p>
+          <button id="bonusBtn" class="primary" onclick="claimBonus()">Получить бонус +100 UZS</button>
           <p id="bonusInfo" class="small"></p>
         </div>
         <div class="panel">
@@ -246,7 +246,7 @@ footer{text-align:center;color:#6f788b;padding:25px 12px;font-size:12px}
           <div class="profile-grid">
             <div class="stat">Игр<strong id="statGames">0</strong></div>
             <div class="stat">Побед<strong id="statWins">0</strong></div>
-            <div class="stat">Чистый результат<strong id="statNet">0 сум</strong></div>
+            <div class="stat">Чистый результат<strong id="statNet">0 UZS</strong></div>
           </div>
         </div>
       </div>
@@ -268,8 +268,8 @@ footer{text-align:center;color:#6f788b;padding:25px 12px;font-size:12px}
         <div class="panel">
           <h3>Текущая сессия</h3>
           <div class="stat-row">
-            <div class="stat">Баланс<strong id="sideBalance">0 сум</strong></div>
-            <div class="stat">Ставка<strong id="sideBet">0 сум</strong></div>
+            <div class="stat">Баланс<strong id="sideBalance">0 UZS</strong></div>
+            <div class="stat">Ставка<strong id="sideBet">0 UZS</strong></div>
           </div>
           <p class="small">Все результаты являются демонстрационными. Ставка вычитается из виртуального баланса при начале раунда. Выигрыш зачисляется автоматически по правилам игры.</p>
           <h3 style="margin-top:24px">Последние результаты</h3>
@@ -304,7 +304,7 @@ footer{text-align:center;color:#6f788b;padding:25px 12px;font-size:12px}
 <script>
 "use strict";
 
-const START_BALANCE = 1000;
+const START_BALANCE = 500000;
 const DAILY_BONUS = 100;
 const $ = id => document.getElementById(id);
 let authMode = "login";
@@ -330,7 +330,7 @@ function saveUser(){
   if(currentUser) localStorage.setItem(userKey(currentUser.username),JSON.stringify(currentUser));
 }
 function money(n){
-  return Math.round(Number(n)||0).toLocaleString("ru-RU")+" сум";
+  return Math.round(Number(n)||0).toLocaleString("ru-RU")+" UZS";
 }
 function safeText(value){
   return String(value).replace(/[&<>"']/g,c=>({
@@ -511,12 +511,12 @@ function renderGame(name){
 function getBet(){
   const el=$("betInput");
   const bet=Math.floor(Number(el?.value));
-  if(!Number.isFinite(bet)||bet<1){toast("Укажи ставку не меньше 1 сум.");return null;}
-  if(bet>currentUser.balance){toast("Недостаточно виртуальных сумов.");return null;}
+  if(!Number.isFinite(bet)||bet<1){toast("Укажи ставку не меньше 1 UZS.");return null;}
+  if(bet>currentUser.balance){toast("Недостаточно виртуальных UZS.");return null;}
   return bet;
 }
 function betControl(min=1){
-  return `<div><label for="betInput">Ставка (сум)</label><input id="betInput" type="number" min="${min}" step="1" value="50"></div>`;
+  return `<div><label for="betInput">Ставка (UZS)</label><input id="betInput" type="number" min="${min}" step="1" value="50"></div>`;
 }
 function beginBet(){
   const bet=getBet();
@@ -874,5 +874,3 @@ function cashApple(){
 </script>
 </body>
 </html>
-
-:::
