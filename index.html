@@ -306,7 +306,9 @@ footer{text-align:center;color:#6f788b;padding:25px 12px;font-size:12px}
 
 const START_BALANCE = 500000;
 const DAILY_BONUS = 100;
+const MIN_BET = 3000;
 const $ = id => document.getElementById(id);
+
 let authMode = "login";
 let currentUser = null;
 let activeGame = null;
@@ -315,64 +317,118 @@ let toastTimer = null;
 let gameTimers = [];
 
 const gameNames = {
-  mines:"💣 Mines", aviator:"✈️ Aviator", slots:"🎰 Slots",
-  dice:"🎲 Dice", blackjack:"🃏 Blackjack 21", apple:"🍎 Apple of Fortune"
+  mines:"💣 Mines",
+  aviator:"✈️ Aviator",
+  slots:"🎰 Slots",
+  dice:"🎲 Dice",
+  blackjack:"🃏 Blackjack 21",
+  apple:"🍎 Apple of Fortune"
 };
 
-function userKey(name){ return "deposit20_user_" + name.toLowerCase(); }
-function sessionKey(){ return "deposit20_session"; }
+function userKey(name){
+  return "deposit20_user_" + name.toLowerCase();
+}
+
+function sessionKey(){
+  return "deposit20_session";
+}
 
 function readUser(name){
-  try { return JSON.parse(localStorage.getItem(userKey(name))); }
-  catch { return null; }
+  try {
+    return JSON.parse(localStorage.getItem(userKey(name)));
+  } catch {
+    return null;
+  }
 }
+
 function saveUser(){
-  if(currentUser) localStorage.setItem(userKey(currentUser.username),JSON.stringify(currentUser));
+  if(currentUser){
+    localStorage.setItem(
+      userKey(currentUser.username),
+      JSON.stringify(currentUser)
+    );
+  }
 }
+
 function money(n){
   return Math.round(Number(n)||0).toLocaleString("ru-RU")+" UZS";
 }
+
 function safeText(value){
   return String(value).replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
   }[c]));
 }
+
 function toast(message){
   $("toast").textContent=message;
   $("toast").classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2500);
+  toastTimer=setTimeout(
+    ()=>$("toast").classList.remove("show"),
+    2500
+  );
 }
+
 function setStatus(message,type=""){
   const el=$("gameStatus");
   el.textContent=message;
   el.className="status "+type;
 }
+
 function toggleAuth(){
   authMode=authMode==="login"?"register":"login";
-  $("authTitle").textContent=authMode==="login"?"Вход в аккаунт":"Создание аккаунта";
-  $("authSubmit").textContent=authMode==="login"?"Войти":"Зарегистрироваться";
-  $("password").autocomplete=authMode==="login"?"current-password":"new-password";
+  $("authTitle").textContent=
+    authMode==="login"?"Вход в аккаунт":"Создание аккаунта";
+  $("authSubmit").textContent=
+    authMode==="login"?"Войти":"Зарегистрироваться";
+  $("password").autocomplete=
+    authMode==="login"?"current-password":"new-password";
 }
+
 $("authForm").addEventListener("submit",e=>{
   e.preventDefault();
+
   const username=$("username").value.trim();
   const password=$("password").value;
+
   if(username.length<3 || password.length<4){
-    toast("Имя — от 3 символов, пароль — от 4.");return;
+    toast("Имя — от 3 символов, пароль — от 4.");
+    return;
   }
+
   let user=readUser(username);
+
   if(authMode==="register"){
-    if(user){toast("Такой пользователь уже существует.");return;}
+    if(user){
+      toast("Такой пользователь уже существует.");
+      return;
+    }
+
     user={
-      username,password,balance:START_BALANCE,history:[],wins:0,
-      games:0,bonusDate:"",createdAt:new Date().toISOString()
+      username,
+      password,
+      balance:START_BALANCE,
+      history:[],
+      wins:0,
+      games:0,
+      bonusDate:"",
+      createdAt:new Date().toISOString()
     };
+
     localStorage.setItem(userKey(username),JSON.stringify(user));
     toast("Аккаунт создан! Начальный баланс: "+money(START_BALANCE));
   }else{
-    if(!user || user.password!==password){toast("Неверное имя пользователя или пароль.");return;}
+    if(!user || user.password!==password){
+      toast("Неверное имя пользователя или пароль.");
+      return;
+    }
   }
+
   currentUser=user;
   localStorage.setItem(sessionKey(),username);
   startApp();
@@ -380,126 +436,230 @@ $("authForm").addEventListener("submit",e=>{
 
 function startApp(){
   if(!currentUser)return;
+
   $("authScreen").classList.add("hidden");
   $("appScreen").classList.remove("hidden");
   $("profileBtn").classList.remove("hidden");
   $("logoutBtn").classList.remove("hidden");
-  updateUI();goHome();
+
+  updateUI();
+  goHome();
 }
+
 function logout(){
   cancelRound();
-  currentUser=null;activeGame=null;
+  currentUser=null;
+  activeGame=null;
+
   localStorage.removeItem(sessionKey());
+
   $("authScreen").classList.remove("hidden");
   $("appScreen").classList.add("hidden");
   $("profileBtn").classList.add("hidden");
   $("logoutBtn").classList.add("hidden");
 }
+
 function updateUI(){
   if(!currentUser)return;
+
   $("headerBalance").textContent=money(currentUser.balance);
   $("sideBalance").textContent=money(currentUser.balance);
   $("statGames").textContent=currentUser.games;
   $("statWins").textContent=currentUser.wins;
+
   const net=currentUser.history.reduce((s,h)=>s+h.net,0);
   $("statNet").textContent=(net>0?"+":"")+money(net);
-  $("bonusBtn").disabled=currentUser.bonusDate===new Date().toLocaleDateString("en-CA");
+
+  const today=new Date().toLocaleDateString("en-CA");
+  $("bonusBtn").disabled=currentUser.bonusDate===today;
+
   $("bonusInfo").textContent=$("bonusBtn").disabled
     ?"Сегодняшний бонус уже получен. Возвращайся завтра."
     :"Бонус доступен сегодня.";
+
   $("historyList").innerHTML=currentUser.history.length
     ?currentUser.history.slice(0,12).map(historyHTML).join("")
     :'<div class="empty">История пока пуста.</div>';
+
   $("recentList").innerHTML=currentUser.history.length
     ?currentUser.history.slice(0,5).map(historyHTML).join("")
     :'<div class="empty">Пока нет результатов.</div>';
-  if(activeGame) $("sideBalance").textContent=money(currentUser.balance);
+
+  if(activeGame){
+    $("sideBalance").textContent=money(currentUser.balance);
+  }
 }
+
 function historyHTML(h){
   const cls=h.net>=0?"positive":"negative";
-  return `<div class="history-item"><div><strong>${safeText(h.game)}</strong><br><span style="color:var(--muted)">${safeText(h.date)}</span></div><div class="${cls}">${h.net>0?"+":""}${money(h.net)}</div></div>`;
+
+  return `<div class="history-item">
+    <div>
+      <strong>${safeText(h.game)}</strong><br>
+      <span style="color:var(--muted)">${safeText(h.date)}</span>
+    </div>
+    <div class="${cls}">
+      ${h.net>0?"+":""}${money(h.net)}
+    </div>
+  </div>`;
 }
+
 function changeBalance(delta){
-  currentUser.balance=Math.max(0,Math.round(currentUser.balance+delta));
-  saveUser();updateUI();
+  currentUser.balance=Math.max(
+    0,
+    Math.round(currentUser.balance+delta)
+  );
+
+  saveUser();
+  updateUI();
+
   const el=$("headerBalance");
-  el.classList.remove("pulse");void el.offsetWidth;el.classList.add("pulse");
+  el.classList.remove("pulse");
+  void el.offsetWidth;
+  el.classList.add("pulse");
+
   setTimeout(()=>el.classList.remove("pulse"),350);
 }
+
 function claimBonus(){
   if(!currentUser)return;
+
   const today=new Date().toLocaleDateString("en-CA");
-  if(currentUser.bonusDate===today){toast("Бонус уже получен сегодня.");return;}
+
+  if(currentUser.bonusDate===today){
+    toast("Бонус уже получен сегодня.");
+    return;
+  }
+
   currentUser.bonusDate=today;
   changeBalance(DAILY_BONUS);
   toast("🎁 Начислено "+money(DAILY_BONUS)+"!");
 }
+
 function showProfile(){
   cancelRound();
+
   $("homeView").classList.add("hidden");
   $("gameView").classList.add("hidden");
   $("profileView").classList.remove("hidden");
+
   $("profileName").textContent=currentUser.username;
   $("profileBalance").textContent=money(currentUser.balance);
   $("profileGames").textContent=currentUser.games;
   $("profileWins").textContent=currentUser.wins;
 }
+
 function resetDemo(){
-  if(!confirm("Сбросить баланс, историю и статистику этого аккаунта?"))return;
+  if(!confirm("Сбросить баланс, историю и статистику этого аккаунта?")){
+    return;
+  }
+
   cancelRound();
+
   currentUser.balance=START_BALANCE;
   currentUser.history=[];
-  currentUser.wins=0;currentUser.games=0;currentUser.bonusDate="";
-  saveUser();updateUI();showProfile();toast("Демоданные сброшены.");
+  currentUser.wins=0;
+  currentUser.games=0;
+  currentUser.bonusDate="";
+
+  saveUser();
+  updateUI();
+  showProfile();
+  toast("Демоданные сброшены.");
 }
+
 function exportCSV(){
   if(!currentUser)return;
+
   const rows=[["Дата","Игра","Ставка","Возврат","Результат"]];
-  currentUser.history.forEach(h=>rows.push([h.date,h.game,h.bet,h.payout,h.net]));
-  const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")).join("\r\n");
-  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+
+  currentUser.history.forEach(h=>{
+    rows.push([h.date,h.game,h.bet,h.payout,h.net]);
+  });
+
+  const csv="\uFEFF"+rows.map(row=>
+    row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(";")
+  ).join("\r\n");
+
+  const blob=new Blob([csv],{
+    type:"text/csv;charset=utf-8;"
+  });
+
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
-  a.href=url;a.download="deposit20_history.csv";a.click();
-  URL.revokeObjectURL(url);
+
+  a.href=url;
+  a.download="deposit20_history.csv";
+  a.click();
+
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+
 function addHistory(game,bet,payout){
   const net=Math.round(payout-bet);
+
   currentUser.history.unshift({
-    date:new Date().toLocaleString("ru-RU"),game,bet,payout:Math.round(payout),net
+    date:new Date().toLocaleString("ru-RU"),
+    game,
+    bet,
+    payout:Math.round(payout),
+    net
   });
+
   currentUser.history=currentUser.history.slice(0,500);
   currentUser.games++;
+
   if(net>0)currentUser.wins++;
-  saveUser();updateUI();
+
+  saveUser();
+  updateUI();
 }
+
 function cancelRound(){
-  gameTimers.forEach(clearTimeout);gameTimers=[];
+  gameTimers.forEach(timer=>{
+    clearTimeout(timer);
+    clearInterval(timer);
+  });
+
+  gameTimers=[];
   round=null;
 }
+
 function later(fn,ms){
-  const t=setTimeout(fn,ms);gameTimers.push(t);return t;
+  const timer=setTimeout(fn,ms);
+  gameTimers.push(timer);
+  return timer;
 }
+
 function goHome(){
-  cancelRound();activeGame=null;
+  cancelRound();
+  activeGame=null;
+
   $("homeView").classList.remove("hidden");
   $("gameView").classList.add("hidden");
   $("profileView").classList.add("hidden");
+
   updateUI();
 }
+
 function openGame(name){
-  cancelRound();activeGame=name;
+  cancelRound();
+  activeGame=name;
+
   $("homeView").classList.add("hidden");
   $("profileView").classList.add("hidden");
   $("gameView").classList.remove("hidden");
+
   $("gameTitle").textContent=gameNames[name];
   $("gameBadge").textContent="Виртуальная игра";
   $("playArea").innerHTML="";
   $("gameControls").innerHTML="";
   $("sideBet").textContent="—";
+
   setStatus("Удачи! Результаты демонстрационные.");
   renderGame(name);
 }
+
 function renderGame(name){
   if(name==="mines")renderMines();
   if(name==="aviator")renderAviator();
@@ -508,34 +668,75 @@ function renderGame(name){
   if(name==="blackjack")renderBlackjack();
   if(name==="apple")renderApple();
 }
+
+/* ОБЩИЕ НАСТРОЙКИ СТАВКИ */
+
 function getBet(){
   const el=$("betInput");
-  const bet=Math.floor(Number(el?.value));
-  if(!Number.isFinite(bet)||bet<1){toast("Укажи ставку не меньше 1 UZS.");return null;}
-  if(bet>currentUser.balance){toast("Недостаточно виртуальных UZS.");return null;}
+  const bet=Number(el?.value);
+
+  if(!Number.isFinite(bet)||!Number.isInteger(bet)||bet<MIN_BET){
+    toast("Минимальная ставка — "+money(MIN_BET)+".");
+    if(el){
+      el.min=String(MIN_BET);
+      el.value=String(MIN_BET);
+    }
+    return null;
+  }
+
+  if(bet>currentUser.balance){
+    toast("Недостаточно виртуальных UZS.");
+    return null;
+  }
+
   return bet;
 }
-function betControl(min=1){
-  return `<div><label for="betInput">Ставка (UZS)</label><input id="betInput" type="number" min="${min}" step="1" value="50"></div>`;
+
+function betControl(min=MIN_BET){
+  return `<div>
+    <label for="betInput">Ставка (UZS)</label>
+    <input
+      id="betInput"
+      type="number"
+      min="${Math.max(MIN_BET,min)}"
+      step="1000"
+      value="${MIN_BET}"
+      inputmode="numeric"
+      required
+    >
+  </div>`;
 }
+
 function beginBet(){
   const bet=getBet();
   if(bet===null)return null;
+
   changeBalance(-bet);
   $("sideBet").textContent=money(bet);
+
   return bet;
 }
+
 function finishRound(game,bet,payout,message,type){
   payout=Math.max(0,Math.round(payout));
-  if(payout>0)changeBalance(payout);
+
+  if(payout>0){
+    changeBalance(payout);
+  }
+
   addHistory(gameNames[game],bet,payout);
   setStatus(message,type);
   $("sideBet").textContent=money(bet);
+
   round=null;
 }
-function fmtMult(n){return n.toFixed(2)+"×";}
 
-// MINES
+function fmtMult(n){
+  return n.toFixed(2)+"×";
+}
+
+/* MINES */
+
 function renderMines(){
   $("playArea").innerHTML=`
     <div class="stat-row" style="justify-content:center">
@@ -543,257 +744,564 @@ function renderMines(){
       <div class="stat">Множитель<strong id="minesMult">1.00×</strong></div>
     </div>
     <div id="minesGrid" class="mines-grid"></div>`;
+
   $("gameControls").innerHTML=`
-    <div class="game-controls">${betControl()}
-      <div><label for="mineCount">Количество мин</label>
-      <input id="mineCount" type="number" min="1" max="24" value="5"></div>
+    <div class="game-controls">
+      ${betControl()}
+      <div>
+        <label for="mineCount">Количество мин</label>
+        <input id="mineCount" type="number" min="1" max="24" value="5">
+      </div>
       <button id="minesStart" class="primary" onclick="startMines()">Начать</button>
       <button id="minesCash" class="secondary" onclick="cashMines()" disabled>Забрать</button>
     </div>`;
+
   makeMineGrid();
 }
+
 function makeMineGrid(){
   $("minesGrid").innerHTML=Array.from({length:25},(_,i)=>
-    `<button class="mine-cell" data-i="${i}" onclick="pickMine(${i})" disabled>?</button>`).join("");
+    `<button class="mine-cell" data-i="${i}" onclick="pickMine(${i})" disabled>?</button>`
+  ).join("");
 }
+
 function startMines(){
   if(round)return;
-  const bet=beginBet();if(bet===null)return;
-  let count=Math.max(1,Math.min(24,Math.floor(Number($("mineCount").value)||5)));
+
+  const bet=beginBet();
+  if(bet===null)return;
+
+  const count=Math.max(
+    1,
+    Math.min(24,Math.floor(Number($("mineCount").value)||5))
+  );
+
   const bombs=new Set();
-  while(bombs.size<count)bombs.add(Math.floor(Math.random()*25));
-  round={type:"mines",bet,bombs,picked:new Set(),over:false,mult:1};
+
+  while(bombs.size<count){
+    bombs.add(Math.floor(Math.random()*25));
+  }
+
+  round={
+    type:"mines",
+    bet,
+    bombs,
+    picked:new Set(),
+    over:false,
+    mult:1
+  };
+
   makeMineGrid();
-  document.querySelectorAll(".mine-cell").forEach(b=>b.disabled=false);
-  $("minesStart").disabled=true;$("minesCash").disabled=true;
-  $("safeCount").textContent="0";$("minesMult").textContent="1.00×";
+
+  document.querySelectorAll(".mine-cell").forEach(b=>{
+    b.disabled=false;
+  });
+
+  $("minesStart").disabled=true;
+  $("minesCash").disabled=true;
+  $("safeCount").textContent="0";
+  $("minesMult").textContent="1.00×";
+
   setStatus("Выбирай клетки. Чем больше безопасных открытий, тем выше множитель.");
 }
+
 function pickMine(i){
-  if(!round||round.type!=="mines"||round.over||round.picked.has(i))return;
-  const r=round; r.picked.add(i);
-  const cell=document.querySelector(`.mine-cell[data-i="${i}"]`);
-  cell.disabled=true;
-  if(r.bombs.has(i)){
-    r.over=true;cell.classList.add("bomb");cell.textContent="💣";
-    r.bombs.forEach(b=>{
-      const el=document.querySelector(`.mine-cell[data-i="${b}"]`);
-      if(el){el.textContent="💣";if(b!==i)el.classList.add("bomb");el.disabled=true;}
-    });
-    document.querySelectorAll(".mine-cell").forEach(b=>b.disabled=true);
-    $("minesStart").disabled=false;$("minesCash").disabled=true;
-    finishRound("mines",r.bet,0,"💥 Мина! Ставка потеряна в демо-раунде.","bad");
+  if(!round||round.type!=="mines"||round.over||round.picked.has(i)){
     return;
   }
-  cell.classList.add("safe");cell.textContent="💎";
+
+  const r=round;
+  r.picked.add(i);
+
+  const cell=document.querySelector(`.mine-cell[data-i="${i}"]`);
+  if(!cell)return;
+
+  cell.disabled=true;
+
+  if(r.bombs.has(i)){
+    r.over=true;
+    cell.classList.add("bomb");
+    cell.textContent="💣";
+
+    r.bombs.forEach(b=>{
+      const el=document.querySelector(`.mine-cell[data-i="${b}"]`);
+
+      if(el){
+        el.textContent="💣";
+        if(b!==i)el.classList.add("bomb");
+        el.disabled=true;
+      }
+    });
+
+    document.querySelectorAll(".mine-cell").forEach(b=>{
+      b.disabled=true;
+    });
+
+    $("minesStart").disabled=false;
+    $("minesCash").disabled=true;
+
+    finishRound(
+      "mines",
+      r.bet,
+      0,
+      "💥 Мина! Ставка потеряна в демо-раунде.",
+      "bad"
+    );
+
+    return;
+  }
+
+  cell.classList.add("safe");
+  cell.textContent="💎";
+
   const safe=r.picked.size;
-  r.mult=Math.min(20,Math.pow(1+safe/(25-r.bombs.size),1.55));
+
+  r.mult=Math.min(
+    20,
+    Math.pow(1+safe/(25-r.bombs.size),1.55)
+  );
+
   $("safeCount").textContent=safe;
   $("minesMult").textContent=fmtMult(r.mult);
   $("minesCash").disabled=false;
-  setStatus("Безопасно! Потенциальный возврат: "+money(r.bet*r.mult),"good");
-  if(safe===25-r.bombs.size)cashMines();
-}
-function cashMines(){
-  if(!round||round.type!=="mines"||round.over||round.picked.size===0)return;
-  const r=round;r.over=true;
-  document.querySelectorAll(".mine-cell").forEach(b=>b.disabled=true);
-  $("minesStart").disabled=false;$("minesCash").disabled=true;
-  finishRound("mines",r.bet,r.bet*r.mult,"💎 Забрано: "+money(r.bet*r.mult),"good");
+
+  setStatus(
+    "Безопасно! Потенциальный возврат: "+money(r.bet*r.mult),
+    "good"
+  );
+
+  if(safe===25-r.bombs.size){
+    cashMines();
+  }
 }
 
-// AVIATOR
+function cashMines(){
+  if(!round||round.type!=="mines"||round.over||round.picked.size===0){
+    return;
+  }
+
+  const r=round;
+  r.over=true;
+
+  document.querySelectorAll(".mine-cell").forEach(b=>{
+    b.disabled=true;
+  });
+
+  $("minesStart").disabled=false;
+  $("minesCash").disabled=true;
+
+  finishRound(
+    "mines",
+    r.bet,
+    r.bet*r.mult,
+    "💎 Забрано: "+money(r.bet*r.mult),
+    "good"
+  );
+}
+
+/* AVIATOR */
+
 function renderAviator(){
   $("playArea").innerHTML=`
-    <div class="plane-stage"><div id="planeTrail" class="trail"></div>
-    <div id="plane" class="plane">✈️</div></div>
+    <div class="plane-stage">
+      <div id="planeTrail" class="trail"></div>
+      <div id="plane" class="plane">✈️</div>
+    </div>
     <div style="text-align:center;font-size:37px;font-weight:900;color:var(--gold);margin-top:16px" id="aviatorMult">1.00×</div>
     <div class="small" style="text-align:center" id="aviatorHint">Начни раунд и забери выигрыш до вылета.</div>`;
-  $("gameControls").innerHTML=`<div class="game-controls">${betControl()}
-    <button id="aviatorStart" class="primary" onclick="startAviator()">Взлететь</button>
-    <button id="aviatorCash" class="secondary" onclick="cashAviator()" disabled>Забрать</button>
-  </div>`;
+
+  $("gameControls").innerHTML=`
+    <div class="game-controls">
+      ${betControl()}
+      <button id="aviatorStart" class="primary" onclick="startAviator()">Взлететь</button>
+      <button id="aviatorCash" class="secondary" onclick="cashAviator()" disabled>Забрать</button>
+    </div>`;
 }
+
 function startAviator(){
   if(round)return;
-  const bet=beginBet();if(bet===null)return;
+
+  const bet=beginBet();
+  if(bet===null)return;
+
   const crash=1.05+Math.random()*5.2;
-  round={type:"aviator",bet,mult:1,crash,over:false,start:Date.now()};
-  $("aviatorStart").disabled=true;$("aviatorCash").disabled=false;
+
+  round={
+    type:"aviator",
+    bet,
+    mult:1,
+    crash,
+    over:false,
+    start:Date.now()
+  };
+
+  $("aviatorStart").disabled=true;
+  $("aviatorCash").disabled=false;
   $("plane").classList.add("fly");
   $("aviatorHint").textContent="Самолёт летит! Забери выигрыш вовремя.";
+
   setStatus("Раунд начался...");
   aviatorTick();
 }
+
 function aviatorTick(){
   if(!round||round.type!=="aviator"||round.over)return;
+
   const r=round;
   const elapsed=(Date.now()-r.start)/1000;
+
   r.mult=Math.exp(elapsed*.22);
+
   $("aviatorMult").textContent=fmtMult(r.mult);
   $("plane").style.left=Math.min(72,7+elapsed*8)+"%";
   $("plane").style.bottom=Math.min(125,20+elapsed*10)+"px";
   $("planeTrail").style.width=Math.min(80,elapsed*10)+"%";
+
   if(r.mult>=r.crash){
     r.over=true;
+
     $("plane").classList.remove("fly");
     $("plane").textContent="💥";
-    $("aviatorCash").disabled=true;$("aviatorStart").disabled=false;
+    $("aviatorCash").disabled=true;
+    $("aviatorStart").disabled=false;
     $("aviatorHint").textContent="Самолёт улетел.";
-    finishRound("aviator",r.bet,0,"💥 Самолёт улетел на "+fmtMult(r.crash),"bad");
+
+    finishRound(
+      "aviator",
+      r.bet,
+      0,
+      "💥 Самолёт улетел на "+fmtMult(r.crash),
+      "bad"
+    );
+
     return;
   }
+
   later(aviatorTick,100);
 }
+
 function cashAviator(){
   if(!round||round.type!=="aviator"||round.over)return;
-  const r=round;r.over=true;
+
+  const r=round;
+  r.over=true;
+
   $("plane").classList.remove("fly");
-  $("aviatorCash").disabled=true;$("aviatorStart").disabled=false;
+  $("aviatorCash").disabled=true;
+  $("aviatorStart").disabled=false;
   $("aviatorHint").textContent="Ты забрал выигрыш на "+fmtMult(r.mult);
-  finishRound("aviator",r.bet,r.bet*r.mult,"✈️ Забрано: "+money(r.bet*r.mult)+" ("+fmtMult(r.mult)+")","good");
+
+  finishRound(
+    "aviator",
+    r.bet,
+    r.bet*r.mult,
+    "✈️ Забрано: "+money(r.bet*r.mult)+" ("+fmtMult(r.mult)+")",
+    "good"
+  );
 }
 
-// SLOTS
+/* SLOTS */
+
 const symbols=["🍒","🍋","🍇","🔔","💎","7️⃣"];
+
 function renderSlots(){
-  $("playArea").innerHTML=`<div class="slots">
-    <div class="reel" id="reel0">🍒</div><div class="reel" id="reel1">💎</div><div class="reel" id="reel2">🍋</div>
-    </div><div class="small" style="text-align:center">Три одинаковых символа — большой выигрыш.</div>`;
-  $("gameControls").innerHTML=`<div class="game-controls">${betControl()}
-    <button id="slotsStart" class="primary" onclick="playSlots()">Крутить барабаны</button></div>`;
+  $("playArea").innerHTML=`
+    <div class="slots">
+      <div class="reel" id="reel0">🍒</div>
+      <div class="reel" id="reel1">💎</div>
+      <div class="reel" id="reel2">🍋</div>
+    </div>
+    <div class="small" style="text-align:center">Три одинаковых символа — большой выигрыш.</div>`;
+
+  $("gameControls").innerHTML=`
+    <div class="game-controls">
+      ${betControl()}
+      <button id="slotsStart" class="primary" onclick="playSlots()">Крутить барабаны</button>
+    </div>`;
 }
+
 function playSlots(){
   if(round)return;
-  const bet=beginBet();if(bet===null)return;
+
+  const bet=beginBet();
+  if(bet===null)return;
+
   round={type:"slots",bet};
   $("slotsStart").disabled=true;
+
   const reels=[0,1,2].map(i=>$("reel"+i));
   reels.forEach(el=>el.classList.add("spinning"));
+
   setStatus("Барабаны вращаются...");
-  const final=reels.map(()=>symbols[Math.floor(Math.random()*symbols.length)]);
+
+  const final=reels.map(()=>
+    symbols[Math.floor(Math.random()*symbols.length)]
+  );
+
   reels.forEach((el,i)=>{
     later(()=>{
-      el.classList.remove("spinning");el.textContent=final[i];
+      if(!round||round.type!=="slots")return;
+
+      el.classList.remove("spinning");
+      el.textContent=final[i];
       el.style.transform="scale(1.12)";
+
       later(()=>el.style.transform="",180);
+
       if(i===2){
         let mult=0;
-        if(final.every(x=>x===final[0]))mult=final[0]==="7️⃣"?8:5;
-        else if(new Set(final).size===2)mult=1.5;
+
+        if(final.every(x=>x===final[0])){
+          mult=final[0]==="7️⃣"?8:5;
+        }else if(new Set(final).size===2){
+          mult=1.5;
+        }
+
         later(()=>{
+          if(!round||round.type!=="slots")return;
+
           $("slotsStart").disabled=false;
-          finishRound("slots",bet,bet*mult,mult?"🎉 Выигрыш "+money(bet*mult)+"!":"Барабаны не совпали. Попробуй ещё раз.",mult?"good":"bad");
+
+          finishRound(
+            "slots",
+            bet,
+            bet*mult,
+            mult
+              ?"🎉 Выигрыш "+money(bet*mult)+"!"
+              :"Барабаны не совпали. Попробуй ещё раз.",
+            mult?"good":"bad"
+          );
         },220);
       }
     },650+i*420);
   });
 }
 
-// DICE
+/* DICE */
+
 function renderDice(){
-  $("playArea").innerHTML=`<div id="diceFace" class="dice-face">🎲</div>
+  $("playArea").innerHTML=`
+    <div id="diceFace" class="dice-face">🎲</div>
     <div style="text-align:center;color:var(--muted)">Угадай: выпадет 4, 5 или 6.</div>
     <div style="text-align:center;font-size:16px;margin-top:10px" id="diceResult"></div>`;
-  $("gameControls").innerHTML=`<div class="game-controls">${betControl()}
-    <button id="diceStart" class="primary" onclick="playDice()">Бросить кубик</button></div>`;
+
+  $("gameControls").innerHTML=`
+    <div class="game-controls">
+      ${betControl()}
+      <button id="diceStart" class="primary" onclick="playDice()">Бросить кубик</button>
+    </div>`;
 }
+
 function playDice(){
   if(round)return;
-  const bet=beginBet();if(bet===null)return;
+
+  const bet=beginBet();
+  if(bet===null)return;
+
   round={type:"dice",bet};
+
   const face=$("diceFace");
-  face.classList.add("rolling");$("diceStart").disabled=true;
+  face.classList.add("rolling");
+  $("diceStart").disabled=true;
   $("diceResult").textContent="";
+
   let ticks=0;
+
   const interval=setInterval(()=>{
-    face.textContent=["⚀","⚁","⚂","⚃","⚄","⚅"][Math.floor(Math.random()*6)];
+    if(!round||round.type!=="dice"){
+      clearInterval(interval);
+      return;
+    }
+
+    face.textContent=["⚀","⚁","⚂","⚃","⚄","⚅"][
+      Math.floor(Math.random()*6)
+    ];
+
     ticks++;
+
     if(ticks>=9){
       clearInterval(interval);
+
       const n=1+Math.floor(Math.random()*6);
+
       face.textContent=["⚀","⚁","⚂","⚃","⚄","⚅"][n-1];
       face.classList.remove("rolling");
-      const win=n>=4;const payout=win?bet*1.8:0;
-      $("diceResult").textContent="Выпало: "+n+(win?" — победа!":" — не повезло.");
+
+      const win=n>=4;
+      const payout=win?bet*1.8:0;
+
+      $("diceResult").textContent=
+        "Выпало: "+n+(win?" — победа!":" — не повезло.");
+
       $("diceStart").disabled=false;
-      finishRound("dice",bet,payout,win?"🎲 Выигрыш: "+money(payout):"🎲 В этот раз без выигрыша.",win?"good":"bad");
+
+      finishRound(
+        "dice",
+        bet,
+        payout,
+        win?"🎲 Выигрыш: "+money(payout):"🎲 В этот раз без выигрыша.",
+        win?"good":"bad"
+      );
     }
   },80);
+
   gameTimers.push(interval);
 }
 
-// BLACKJACK
+/* BLACKJACK */
+
 function renderBlackjack(){
   $("playArea").innerHTML=`
-    <div class="small" style="text-align:center">Дилер</div><div id="dealerCards" class="cards"></div>
+    <div class="small" style="text-align:center">Дилер</div>
+    <div id="dealerCards" class="cards"></div>
     <div id="dealerTotal" style="text-align:center;color:var(--muted)">Сумма: —</div>
     <hr style="border-color:var(--border);margin:20px 0">
-    <div class="small" style="text-align:center">Твои карты</div><div id="playerCards" class="cards"></div>
+    <div class="small" style="text-align:center">Твои карты</div>
+    <div id="playerCards" class="cards"></div>
     <div id="playerTotal" style="text-align:center;color:var(--muted)">Сумма: —</div>`;
-  $("gameControls").innerHTML=`<div class="game-controls">${betControl()}
-    <button id="bjStart" class="primary" onclick="startBlackjack()">Раздать карты</button>
-    <button id="bjHit" class="secondary" onclick="hitBlackjack()" disabled>Ещё карту</button>
-    <button id="bjStand" class="secondary" onclick="standBlackjack()" disabled>Хватит</button></div>`;
+
+  $("gameControls").innerHTML=`
+    <div class="game-controls">
+      ${betControl()}
+      <button id="bjStart" class="primary" onclick="startBlackjack()">Раздать карты</button>
+      <button id="bjHit" class="secondary" onclick="hitBlackjack()" disabled>Ещё карту</button>
+      <button id="bjStand" class="secondary" onclick="standBlackjack()" disabled>Хватит</button>
+    </div>`;
 }
+
 function drawCard(){
   const rank=Math.floor(Math.random()*13)+1;
   const suit=["♠","♥","♦","♣"][Math.floor(Math.random()*4)];
   const value=rank===1?11:Math.min(rank,10);
   const label=rank===1?"A":rank===11?"J":rank===12?"Q":rank===13?"K":String(rank);
-  return {value,label:label+suit,red:suit==="♥"||suit==="♦"};
+
+  return {
+    value,
+    label:label+suit,
+    red:suit==="♥"||suit==="♦"
+  };
 }
+
 function handTotal(hand){
-  let total=hand.reduce((s,c)=>s+c.value,0),aces=hand.filter(c=>c.value===11).length;
-  while(total>21&&aces>0){total-=10;aces--;}
+  let total=hand.reduce((s,c)=>s+c.value,0);
+  let aces=hand.filter(c=>c.value===11).length;
+
+  while(total>21&&aces>0){
+    total-=10;
+    aces--;
+  }
+
   return total;
 }
+
 function showCards(id,hand){
-  $(id).innerHTML=hand.map(c=>`<div class="playing-card ${c.red?"red":""}">${safeText(c.label)}</div>`).join("");
+  $(id).innerHTML=hand.map(c=>
+    `<div class="playing-card ${c.red?"red":""}">${safeText(c.label)}</div>`
+  ).join("");
 }
+
 function updateBlackjack(){
   showCards("playerCards",round.player);
   showCards("dealerCards",round.dealer);
+
   $("playerTotal").textContent="Сумма: "+handTotal(round.player);
   $("dealerTotal").textContent="Сумма: "+handTotal(round.dealer);
 }
+
 function startBlackjack(){
   if(round)return;
-  const bet=beginBet();if(bet===null)return;
-  round={type:"blackjack",bet,player:[drawCard(),drawCard()],dealer:[drawCard(),drawCard()],over:false};
-  $("bjStart").disabled=true;$("bjHit").disabled=false;$("bjStand").disabled=false;
+
+  const bet=beginBet();
+  if(bet===null)return;
+
+  round={
+    type:"blackjack",
+    bet,
+    player:[drawCard(),drawCard()],
+    dealer:[drawCard(),drawCard()],
+    over:false
+  };
+
+  $("bjStart").disabled=true;
+  $("bjHit").disabled=false;
+  $("bjStand").disabled=false;
+
   updateBlackjack();
+
   setStatus("Набери больше очков, чем дилер, но не больше 21.");
-  if(handTotal(round.player)===21)standBlackjack();
+
+  if(handTotal(round.player)===21){
+    standBlackjack();
+  }
 }
+
 function hitBlackjack(){
   if(!round||round.type!=="blackjack"||round.over)return;
-  round.player.push(drawCard());updateBlackjack();
+
+  round.player.push(drawCard());
+  updateBlackjack();
+
   if(handTotal(round.player)>21){
-    $("bjHit").disabled=true;$("bjStand").disabled=true;
+    $("bjHit").disabled=true;
+    $("bjStand").disabled=true;
     endBlackjack("Перебор! Больше 21.","bad",0);
-  }else if(handTotal(round.player)===21)standBlackjack();
+  }else if(handTotal(round.player)===21){
+    standBlackjack();
+  }
 }
+
 function standBlackjack(){
   if(!round||round.type!=="blackjack"||round.over)return;
+
   const r=round;
-  $("bjHit").disabled=true;$("bjStand").disabled=true;
-  while(handTotal(r.dealer)<17)r.dealer.push(drawCard());
+
+  $("bjHit").disabled=true;
+  $("bjStand").disabled=true;
+
+  while(handTotal(r.dealer)<17){
+    r.dealer.push(drawCard());
+  }
+
   updateBlackjack();
-  const p=handTotal(r.player),d=handTotal(r.dealer);
-  let payout=0,msg="",type="";
-  if(d>21||p>d){payout=p===21&&r.player.length===2?r.bet*2.5:r.bet*2;msg="🃏 Ты победил! Возврат: "+money(payout);type="good";}
-  else if(p===d){payout=r.bet;msg="Ничья. Ставка возвращена.";type="";}
-  else{msg="Дилер победил.";type="bad";}
+
+  const p=handTotal(r.player);
+  const d=handTotal(r.dealer);
+
+  let payout=0;
+  let msg="";
+  let type="";
+
+  if(d>21||p>d){
+    payout=p===21&&r.player.length===2?r.bet*2.5:r.bet*2;
+    msg="🃏 Ты победил! Возврат: "+money(payout);
+    type="good";
+  }else if(p===d){
+    payout=r.bet;
+    msg="Ничья. Ставка возвращена.";
+    type="";
+  }else{
+    msg="Дилер победил.";
+    type="bad";
+  }
+
   endBlackjack(msg,type,payout);
 }
+
 function endBlackjack(msg,type,payout){
-  const r=round;if(!r||r.over)return;r.over=true;
-  $("bjStart").disabled=false;$("bjHit").disabled=true;$("bjStand").disabled=true;
+  const r=round;
+  if(!r||r.over)return;
+
+  r.over=true;
+
+  $("bjStart").disabled=false;
+  $("bjHit").disabled=true;
+  $("bjStand").disabled=true;
+
   finishRound("blackjack",r.bet,payout,msg,type);
 }
 
-// APPLE OF FORTUNE
+/* APPLE OF FORTUNE — ИСПРАВЛЕННЫЙ ЗАПУСК */
+
 function renderApple(){
   $("playArea").innerHTML=`
     <div class="stat-row" style="justify-content:center">
@@ -801,74 +1309,244 @@ function renderApple(){
       <div class="stat">Множитель<strong id="appleMult">1.00×</strong></div>
     </div>
     <div id="appleGrid" class="apple-grid"></div>`;
-  $("gameControls").innerHTML=`<div class="game-controls">${betControl()}
-    <button id="appleStart" class="primary" onclick="startApple()">Начать</button>
-    <button id="appleCash" class="secondary" onclick="cashApple()" disabled>Забрать</button></div>`;
-  drawAppleRows(0);
-}
-function drawAppleRows(level){
-  const grid=$("appleGrid");if(!grid)return;
-  grid.innerHTML="";
-  for(let row=0;row<5;row++){
-    const r=document.createElement("div");r.className="apple-row";
-    for(let col=0;col<3;col++){
-      const b=document.createElement("button");
-      b.className="apple-btn";b.textContent="🍏";
-      b.disabled=true;b.dataset.row=row;b.dataset.col=col;
-      b.onclick=()=>pickApple(row,col);r.appendChild(b);
-    }
-    grid.appendChild(r);
-  }
-}
-function startApple(){
-  if(round)return;
-  const bet=beginBet();if(bet===null)return;
-  round={type:"apple",bet,level:0,over:false,goodCols:[]};
-  for(let row=0;row<5;row++)round.goodCols.push(Math.floor(Math.random()*3));
-  drawAppleRows(0);
-  document.querySelectorAll(".apple-btn").forEach(b=>b.disabled=false);
-  $("appleStart").disabled=true;$("appleCash").disabled=true;
-  $("appleLevel").textContent="0";$("appleMult").textContent="1.00×";
-  setStatus("Выбирай одно яблоко на каждом уровне.");
-}
-function pickApple(row,col){
-  if(!round||round.type!=="apple"||round.over||row!==round.level)return;
-  const r=round;
-  document.querySelectorAll(`.apple-btn[data-row="${row}"]`).forEach(b=>b.disabled=true);
-  const chosen=document.querySelector(`.apple-btn[data-row="${row}"][data-col="${col}"]`);
-  if(col!==r.goodCols[row]){
-    chosen.textContent="💥";chosen.classList.add("wrong");
-    r.over=true;
-    r.goodCols.forEach((good,ri)=>{
-      const b=document.querySelector(`.apple-btn[data-row="${ri}"][data-col="${good}"]`);
-      if(b)b.textContent="🍎";
-    });
-    $("appleStart").disabled=false;$("appleCash").disabled=true;
-    finishRound("apple",r.bet,0,"🍎 Неудачный выбор. Попробуй ещё раз!","bad");
-    return;
-  }
-  chosen.textContent="🍎";chosen.classList.add("picked");
-  r.level++;
-  const mult=Math.pow(1.55,r.level);
-  $("appleLevel").textContent=r.level;$("appleMult").textContent=fmtMult(mult);
-  $("appleCash").disabled=false;
-  setStatus("Отлично! Потенциальный возврат: "+money(r.bet*mult),"good");
-  if(r.level>=5)cashApple();
-}
-function cashApple(){
-  if(!round||round.type!=="apple"||round.over||round.level===0)return;
-  const r=round;r.over=true;
-  $("appleStart").disabled=false;$("appleCash").disabled=true;
-  finishRound("apple",r.bet,r.bet*Math.pow(1.55,r.level),"🍎 Забрано: "+money(r.bet*Math.pow(1.55,r.level)),"good");
+
+  $("gameControls").innerHTML=`
+    <div class="game-controls">
+      ${betControl()}
+      <button id="appleStart" type="button" class="primary" onclick="startApple()">Начать</button>
+      <button id="appleCash" type="button" class="secondary" onclick="cashApple()" disabled>Забрать</button>
+    </div>`;
+
+  drawAppleRows();
+  resetAppleButtons();
 }
 
-// INITIAL SESSION
+function drawAppleRows(){
+  const grid=$("appleGrid");
+  if(!grid)return;
+
+  grid.innerHTML="";
+
+  for(let row=0;row<5;row++){
+    const rowElement=document.createElement("div");
+    rowElement.className="apple-row";
+
+    for(let col=0;col<3;col++){
+      const button=document.createElement("button");
+
+      button.type="button";
+      button.className="apple-btn";
+      button.textContent="🍏";
+      button.disabled=true;
+      button.dataset.row=String(row);
+      button.dataset.col=String(col);
+      button.setAttribute("aria-label",`Уровень ${row+1}, яблоко ${col+1}`);
+
+      button.addEventListener("click",()=>{
+        pickApple(row,col);
+      });
+
+      rowElement.appendChild(button);
+    }
+
+    grid.appendChild(rowElement);
+  }
+}
+
+function resetAppleButtons(){
+  document.querySelectorAll(".apple-btn").forEach(button=>{
+    button.disabled=true;
+    button.textContent="🍏";
+    button.classList.remove("picked","wrong");
+  });
+
+  if($("appleLevel"))$("appleLevel").textContent="0";
+  if($("appleMult"))$("appleMult").textContent="1.00×";
+
+  if($("appleStart"))$("appleStart").disabled=false;
+  if($("appleCash"))$("appleCash").disabled=true;
+}
+
+function startApple(){
+  // Не позволяем запускать два раунда одновременно.
+  if(round){
+    if(round.type==="apple"){
+      toast("Раунд уже начат. Выбери яблоко.");
+    }
+    return;
+  }
+
+  if(activeGame!=="apple"){
+    return;
+  }
+
+  const bet=beginBet();
+  if(bet===null)return;
+
+  const goodCols=[];
+
+  for(let row=0;row<5;row++){
+    goodCols.push(Math.floor(Math.random()*3));
+  }
+
+  round={
+    type:"apple",
+    bet,
+    level:0,
+    over:false,
+    goodCols
+  };
+
+  // Создаём игровое поле заново при каждом новом раунде.
+  drawAppleRows();
+
+  document.querySelectorAll(".apple-btn").forEach(button=>{
+    button.disabled=false;
+  });
+
+  $("appleStart").disabled=true;
+  $("appleCash").disabled=true;
+  $("appleLevel").textContent="0";
+  $("appleMult").textContent="1.00×";
+
+  setStatus("Выбирай одно яблоко на каждом уровне.");
+}
+
+function pickApple(row,col){
+  if(
+    !round||
+    round.type!=="apple"||
+    round.over||
+    row!==round.level
+  ){
+    return;
+  }
+
+  const r=round;
+
+  const chosen=document.querySelector(
+    `.apple-btn[data-row="${row}"][data-col="${col}"]`
+  );
+
+  if(!chosen||chosen.disabled)return;
+
+  // После выбора блокируем все кнопки текущего ряда.
+  document.querySelectorAll(
+    `.apple-btn[data-row="${row}"]`
+  ).forEach(button=>{
+    button.disabled=true;
+  });
+
+  if(col!==r.goodCols[row]){
+    chosen.textContent="💥";
+    chosen.classList.add("wrong");
+
+    r.over=true;
+
+    // Показываем правильные позиции яблок.
+    r.goodCols.forEach((good,ri)=>{
+      const button=document.querySelector(
+        `.apple-btn[data-row="${ri}"][data-col="${good}"]`
+      );
+
+      if(button){
+        button.textContent="🍎";
+      }
+    });
+
+    document.querySelectorAll(".apple-btn").forEach(button=>{
+      button.disabled=true;
+    });
+
+    $("appleStart").disabled=false;
+    $("appleCash").disabled=true;
+
+    finishRound(
+      "apple",
+      r.bet,
+      0,
+      "🍎 Неудачный выбор. Попробуй ещё раз!",
+      "bad"
+    );
+
+    return;
+  }
+
+  // Правильное яблоко.
+  chosen.textContent="🍎";
+  chosen.classList.add("picked");
+
+  r.level++;
+
+  const mult=Math.pow(1.55,r.level);
+
+  $("appleLevel").textContent=String(r.level);
+  $("appleMult").textContent=fmtMult(mult);
+  $("appleCash").disabled=false;
+
+  setStatus(
+    "Отлично! Потенциальный возврат: "+money(r.bet*mult),
+    "good"
+  );
+
+  if(r.level>=5){
+    cashApple();
+    return;
+  }
+
+  // Разрешаем выбирать яблоки только на следующем уровне.
+  document.querySelectorAll(".apple-btn").forEach(button=>{
+    const buttonRow=Number(button.dataset.row);
+
+    button.disabled=buttonRow!==r.level;
+  });
+}
+
+function cashApple(){
+  if(
+    !round||
+    round.type!=="apple"||
+    round.over||
+    round.level===0
+  ){
+    return;
+  }
+
+  const r=round;
+  r.over=true;
+
+  const payout=r.bet*Math.pow(1.55,r.level);
+
+  $("appleStart").disabled=false;
+  $("appleCash").disabled=true;
+
+  document.querySelectorAll(".apple-btn").forEach(button=>{
+    button.disabled=true;
+  });
+
+  finishRound(
+    "apple",
+    r.bet,
+    payout,
+    "🍎 Забрано: "+money(payout),
+    "good"
+  );
+}
+
+/* INITIAL SESSION */
+
 (function init(){
   const name=localStorage.getItem(sessionKey());
+
   if(name){
     const user=readUser(name);
-    if(user){currentUser=user;startApp();}
-    else localStorage.removeItem(sessionKey());
+
+    if(user){
+      currentUser=user;
+      startApp();
+    }else{
+      localStorage.removeItem(sessionKey());
+    }
   }
 })();
 </script>
