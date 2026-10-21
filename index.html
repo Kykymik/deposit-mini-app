@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#080808">
-<title>DEPOSIT — Premium Games</title>
+<title>DEPOSIT 2.0 — Premium Games</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
@@ -20,129 +20,86 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  background:
-    radial-gradient(ellipse at top,#211909 0,transparent 42%),
-    var(--bg);
+  background:radial-gradient(ellipse at top,#211909 0,transparent 42%),var(--bg);
   color:#fff;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   min-height:100vh;
 }
 button,input{font:inherit}
-button{cursor:pointer; -webkit-tap-highlight-color:transparent}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 button:disabled{opacity:.5;cursor:default}
 header{
-  max-width:600px;
-  margin:auto;
-  padding:20px 16px 14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  max-width:600px;margin:auto;padding:20px 16px 14px;
+  display:flex;justify-content:space-between;align-items:center;
 }
 .logo{
-  color:var(--gold);
-  font-weight:1000;
-  font-size:25px;
-  letter-spacing:2px;
+  color:var(--gold);font-weight:1000;font-size:25px;letter-spacing:2px;
   text-shadow:0 0 22px #f5c45133;
 }
 .badge{
-  font-size:10px;
-  letter-spacing:1px;
-  color:var(--gold);
-  border:1px solid #5c481c;
-  background:#171208;
-  border-radius:20px;
-  padding:8px 10px;
+  font-size:10px;letter-spacing:1px;color:var(--gold);
+  border:1px solid #5c481c;background:#171208;border-radius:20px;padding:8px 10px;
 }
 main{max-width:600px;margin:auto;padding:0 14px 35px}
 .card{
   background:linear-gradient(145deg,#191919,#101010);
-  border:1px solid #30291b;
-  border-radius:19px;
-  padding:17px;
-  margin-bottom:15px;
+  border:1px solid #30291b;border-radius:19px;padding:17px;margin-bottom:15px;
   box-shadow:0 8px 28px #0004;
 }
 .balance-card{
-  position:relative;
-  overflow:hidden;
+  position:relative;overflow:hidden;
   background:linear-gradient(120deg,#30240c,#17140e 55%,#121212);
   border-color:#69501d;
 }
 .balance-card:after{
-  content:"✦";
-  position:absolute;
-  right:16px;
-  top:10px;
-  font-size:75px;
-  color:#f5c4510b;
-  pointer-events:none;
+  content:"✦";position:absolute;right:16px;top:10px;font-size:75px;
+  color:#f5c4510b;pointer-events:none;
 }
 .label{font-size:11px;color:#b7ad96;letter-spacing:1.2px}
 .amount{
-  color:var(--gold);
-  font-size:30px;
-  font-weight:900;
-  margin:10px 0 18px;
-  overflow-wrap:anywhere;
-  transition:transform .25s;
+  color:var(--gold);font-size:30px;font-weight:900;margin:10px 0 18px;
+  overflow-wrap:anywhere;transition:transform .25s;
 }
 .amount.bump{animation:bump .4s ease}
-@keyframes bump{
-  50%{transform:scale(1.06);text-shadow:0 0 18px #f5c45188}
-}
+@keyframes bump{50%{transform:scale(1.06);text-shadow:0 0 18px #f5c45188}}
 .actions{display:flex;gap:9px}
 .btn{
-  border:0;
-  border-radius:12px;
-  padding:13px 12px;
-  min-height:45px;
-  font-weight:800;
-  background:linear-gradient(135deg,var(--gold2),var(--gold));
-  color:#181205;
+  border:0;border-radius:12px;padding:13px 12px;min-height:45px;font-weight:800;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));color:#181205;
   box-shadow:0 4px 16px #f5c45112;
   transition:transform .15s,filter .15s,box-shadow .15s;
+  position:relative;overflow:hidden;
 }
-.btn:active{transform:scale(.97);filter:brightness(1.08)}
-.btn.secondary{
-  background:#25221a;
-  color:var(--gold);
-  border:1px solid #514321;
-  box-shadow:none;
-}
+.btn:active{transform:scale(.96);filter:brightness(1.08)}
+.btn:not(:disabled):hover{box-shadow:0 0 20px #f5c45135;filter:brightness(1.08)}
+.btn.secondary{background:#25221a;color:var(--gold);border:1px solid #514321;box-shadow:none}
 .actions .btn{flex:1}
 h2{font-size:18px;margin:24px 3px 12px}
 .section-note{font-size:12px;color:#888;margin:-5px 3px 14px}
 .games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .game{
-  min-width:0;
-  position:relative;
-  overflow:hidden;
-  text-align:left;
-  min-height:126px;
+  min-width:0;position:relative;overflow:hidden;text-align:left;min-height:126px;
   background:linear-gradient(145deg,#1b1b1b,#101010);
-  border:1px solid #343025;
-  border-radius:17px;
-  color:#fff;
-  padding:14px;
+  border:1px solid #343025;border-radius:17px;color:#fff;padding:14px;
   transition:transform .2s,border-color .2s,box-shadow .2s;
+  animation:gameEnter .45s ease both;
+}
+.game:nth-child(2){animation-delay:.04s}
+.game:nth-child(3){animation-delay:.08s}
+.game:nth-child(4){animation-delay:.12s}
+.game:nth-child(5){animation-delay:.16s}
+.game:nth-child(6){animation-delay:.20s}
+@keyframes gameEnter{
+  from{opacity:0;transform:translateY(15px) scale(.97)}
+  to{opacity:1;transform:translateY(0) scale(1)}
 }
 .game:before{
-  content:"";
-  position:absolute;
-  width:100px;height:100px;
-  right:-38px;top:-45px;
-  border-radius:50%;
-  background:#f5c4510b;
+  content:"";position:absolute;width:100px;height:100px;right:-38px;top:-45px;
+  border-radius:50%;background:#f5c4510b;
 }
 .game:active{transform:scale(.97);border-color:var(--gold)}
 .game:hover{border-color:#8b6b2b;box-shadow:0 0 20px #f5c4510a}
-.icon{
-  display:block;
-  font-size:34px;
-  margin-bottom:12px;
-  filter:drop-shadow(0 4px 9px #f5c45116);
-}
+.icon{display:block;font-size:34px;margin-bottom:12px;filter:drop-shadow(0 4px 9px #f5c45116)}
 .game strong{font-size:15px;display:block}
 .game small{display:block;color:#999;font-size:11px;margin-top:6px}
 .panel{display:none;margin-top:16px}
@@ -152,118 +109,79 @@ h2{font-size:18px;margin:24px 3px 12px}
   to{opacity:1;transform:translateY(0)}
 }
 .game-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  color:var(--gold);
-  font-weight:900;
-  margin-bottom:17px;
-  font-size:17px;
+  display:flex;justify-content:space-between;align-items:center;
+  color:var(--gold);font-weight:900;margin-bottom:17px;font-size:17px;
 }
-.close{
-  background:#282828;
-  color:#fff;
-  border:1px solid #393939;
-  border-radius:9px;
-  padding:8px 12px;
-}
+.close{background:#282828;color:#fff;border:1px solid #393939;border-radius:9px;padding:8px 12px}
 .muted{font-size:12px;color:#aaa}
 input{
-  width:100%;
-  background:#090909;
-  border:1px solid #49402c;
-  border-radius:11px;
-  padding:13px;
-  color:white;
-  margin:8px 0 14px;
-  font-size:16px;
-  outline:none;
+  width:100%;background:#090909;border:1px solid #49402c;border-radius:11px;
+  padding:13px;color:white;margin:8px 0 14px;font-size:16px;outline:none;
 }
 input:focus{border-color:var(--gold)}
 .full{width:100%}
 .status{
-  text-align:center;
-  color:#bdbdbd;
-  font-size:13px;
-  line-height:1.5;
-  min-height:24px;
-  margin:14px 0;
+  text-align:center;color:#bdbdbd;font-size:13px;line-height:1.5;
+  min-height:24px;margin:14px 0;
 }
-.status.win{color:var(--gold);animation:appear .3s}
+.status.win{color:var(--gold);animation:appear .3s;text-shadow:0 0 12px #f5c45144}
 .status.lose{color:var(--red)}
 .grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
 .cell{
-  aspect-ratio:1;
-  min-width:0;
-  border:1px solid #49402a;
+  aspect-ratio:1;min-width:0;border:1px solid #49402a;
   background:linear-gradient(145deg,#302a1e,#201e19);
-  border-radius:9px;
-  color:white;
-  font-size:23px;
-  transition:background .2s;
+  border-radius:9px;color:white;font-size:23px;
+  transition:transform .28s,background .2s,border-color .2s,box-shadow .2s;
 }
 .cell.open{
-  background:linear-gradient(135deg,#14583a,#218653);
-  border-color:#42e59b;
-  box-shadow:0 0 14px #36d58a33;
-  animation:gem .4s ease;
+  background:linear-gradient(135deg,#14583a,#218653);border-color:#42e59b;
+  box-shadow:0 0 14px #36d58a33;animation:crystalReveal .42s ease;
 }
 .cell.boom{
   background:radial-gradient(circle,#ff5757,#661111);
-  border-color:#ff7777;
-  animation:explode .45s ease;
+  border-color:#ff7777;animation:bombImpact .55s ease;
 }
-@keyframes gem{
-  0%{transform:scale(.6) rotate(-12deg)}
-  65%{transform:scale(1.15) rotate(4deg)}
-  100%{transform:scale(1)}
+@keyframes crystalReveal{
+  0%{transform:rotateY(90deg) scale(.75);opacity:.5}
+  65%{transform:rotateY(-10deg) scale(1.12);opacity:1}
+  100%{transform:rotateY(0) scale(1)}
 }
-@keyframes explode{
-  0%,100%{transform:translateX(0) scale(1)}
-  20%{transform:translateX(-6px) scale(1.1)}
-  40%{transform:translateX(6px) scale(1.15)}
-  60%{transform:translateX(-4px)}
-  80%{transform:translateX(4px)}
+@keyframes bombImpact{
+  0%{transform:scale(.5);filter:brightness(2)}
+  25%{transform:scale(1.25) rotate(-8deg)}
+  45%{transform:scale(.9) rotate(8deg)}
+  65%{transform:scale(1.08) rotate(-4deg)}
+  100%{transform:scale(1) rotate(0)}
 }
 .planearea{
-  height:190px;
-  position:relative;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  background:radial-gradient(ellipse at bottom,#4a350c,#17120a 55%,#0b0b0b);
-  border:1px solid #493819;
-  border-radius:14px;
+  height:190px;position:relative;overflow:hidden;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 70% 100%,#72501855,transparent 55%),
+             linear-gradient(160deg,#17140d,#080808);
+  border:1px solid #493819;border-radius:14px;
 }
+.planearea.crashed{animation:crashFlash .45s ease}
+@keyframes crashFlash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.8) saturate(1.5)}}
 .mult{
-  font-size:38px;
-  font-weight:1000;
-  color:var(--gold);
-  text-shadow:0 0 20px #f5c45144;
-  z-index:1;
+  font-size:38px;font-weight:1000;color:var(--gold);
+  text-shadow:0 0 20px #f5c45144;z-index:1;transition:color .15s;
 }
+.mult.hot{
+  color:#ffdf87;text-shadow:0 0 12px #f5c451aa,0 0 28px #f5c45155;
+  animation:multPulse .6s ease-in-out infinite alternate;
+}
+@keyframes multPulse{to{transform:scale(1.07)}}
 .plane{
-  font-size:39px;
-  display:block;
-  margin-top:10px;
-  filter:drop-shadow(0 0 10px #f5c45155);
-  transition:transform .1s linear;
+  font-size:39px;display:block;margin-top:10px;
+  filter:drop-shadow(0 0 12px #f5c45177);transition:transform .1s linear;
+  will-change:transform;
 }
 .reels{display:flex;gap:7px;margin:16px 0}
 .reel{
-  flex:1;
-  min-width:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:86px;
-  font-size:35px;
-  background:linear-gradient(145deg,#302719,#1b1812);
-  border:1px solid #624d24;
-  border-radius:12px;
-  overflow:hidden;
+  flex:1;min-width:0;display:flex;align-items:center;justify-content:center;
+  height:86px;font-size:35px;background:linear-gradient(145deg,#302719,#1b1812);
+  border:1px solid #624d24;border-radius:12px;overflow:hidden;
+  transition:border-color .25s,box-shadow .25s;
 }
 .spin{animation:reelSpin .12s linear infinite}
 @keyframes reelSpin{
@@ -271,11 +189,14 @@ input:focus{border-color:var(--gold)}
   50%{transform:translateY(4px);filter:brightness(1)}
   100%{transform:translateY(-5px);filter:brightness(1.5)}
 }
+.reel.winner{
+  border-color:var(--gold);box-shadow:0 0 15px #f5c45166,inset 0 0 15px #f5c45118;
+  animation:reelWinner .7s ease-in-out infinite alternate;
+}
+@keyframes reelWinner{to{transform:scale(1.04)}}
 .dice{
-  text-align:center;
-  font-size:76px;
-  padding:15px;
-  filter:drop-shadow(0 0 14px #f5c45122);
+  text-align:center;font-size:76px;padding:15px;
+  filter:drop-shadow(0 0 14px #f5c45122);transform-origin:center;
 }
 .roll{animation:diceRoll .75s ease}
 @keyframes diceRoll{
@@ -284,115 +205,70 @@ input:focus{border-color:var(--gold)}
   75%{transform:rotate(650deg) scale(.9)}
   100%{transform:rotate(720deg) scale(1)}
 }
-.win-effect{animation:goldFlash .8s ease}
-@keyframes goldFlash{
+.win-effect{animation:premiumWin .9s ease}
+@keyframes premiumWin{
   0%,100%{box-shadow:0 8px 28px #0004}
-  45%{box-shadow:0 0 30px #f5c45166;border-color:#f5c451}
+  30%,65%{box-shadow:0 0 20px #f5c45155,0 0 45px #f5c45122;border-color:var(--gold)}
 }
-
-/* 21 очко */
+/* Blackjack */
 .scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.scorebox{
-  background:#0d0d0d;
-  border:1px solid #363022;
-  border-radius:12px;
-  padding:12px;
-  text-align:center;
-}
+.scorebox{background:#0d0d0d;border:1px solid #363022;border-radius:12px;padding:12px;text-align:center}
 .scorebox strong{display:block;color:var(--gold);font-size:24px;margin-top:5px}
 .hand-title{font-size:12px;color:#aaa;margin:14px 0 8px}
 .hand{display:flex;flex-wrap:wrap;gap:7px;min-height:78px}
 .playing-card{
-  width:49px;height:70px;
-  border-radius:7px;
-  background:linear-gradient(145deg,#fff,#e9e5da);
-  color:#161616;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  padding:5px;
-  font-size:19px;
-  font-weight:900;
-  box-shadow:0 4px 10px #0006;
-  animation:cardIn .3s ease;
+  width:49px;height:70px;border-radius:7px;background:linear-gradient(145deg,#fff,#e9e5da);
+  color:#161616;display:flex;flex-direction:column;justify-content:space-between;
+  padding:5px;font-size:19px;font-weight:900;box-shadow:0 4px 10px #0006;
+  animation:dealCard .38s cubic-bezier(.2,.8,.2,1) both;
 }
 .playing-card.red{color:#d32f35}
 .playing-card.back{
   background:repeating-linear-gradient(45deg,#282014,#282014 5px,#46351b 5px,#46351b 10px);
-  color:var(--gold);
-  border:1px solid var(--gold);
-  align-items:center;
-  justify-content:center;
+  color:var(--gold);border:1px solid var(--gold);align-items:center;justify-content:center;
 }
-@keyframes cardIn{
-  from{opacity:0;transform:translateY(-12px) rotate(-8deg)}
-  to{opacity:1;transform:translateY(0) rotate(0)}
+@keyframes dealCard{
+  from{opacity:0;transform:translateY(-30px) rotate(-12deg) scale(.8)}
+  to{opacity:1;transform:translateY(0) rotate(0) scale(1)}
 }
 .sub-actions{display:flex;gap:8px;margin-top:10px}
 .sub-actions .btn{flex:1}
-
 /* Apple of Fortune */
 .apple-board{display:flex;flex-direction:column;gap:7px}
 .apple-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
 .apple-level{
-  color:#a99974;
-  font-size:11px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid #332b1b;
-  border-radius:9px;
-  background:#17140e;
+  color:#a99974;font-size:11px;display:flex;align-items:center;justify-content:center;
+  border:1px solid #332b1b;border-radius:9px;background:#17140e;
 }
 .apple-cell{
-  min-width:0;
-  aspect-ratio:1.2;
-  background:linear-gradient(145deg,#29251b,#171612);
-  border:1px solid #554322;
-  border-radius:10px;
-  color:white;
-  font-size:26px;
-  transition:transform .15s,background .2s;
+  min-width:0;aspect-ratio:1.2;background:linear-gradient(145deg,#29251b,#171612);
+  border:1px solid #554322;border-radius:10px;color:white;font-size:26px;
+  transition:transform .15s,background .2s,box-shadow .2s;
 }
 .apple-cell:not(:disabled):active{transform:scale(.92)}
 .apple-cell.safe{
-  background:linear-gradient(135deg,#16492d,#237c43);
-  border-color:#43df82;
-  animation:gem .4s ease;
+  background:linear-gradient(135deg,#16492d,#237c43);border-color:#43df82;
+  box-shadow:0 0 14px #35d99455,inset 0 0 12px #35d99422;
+  animation:appleBounce .48s ease;
+}
+@keyframes appleBounce{
+  0%{transform:scale(.75)}
+  45%{transform:scale(1.15) translateY(-4px)}
+  70%{transform:scale(.96)}
+  100%{transform:scale(1)}
 }
 .apple-cell.bad{
   background:linear-gradient(135deg,#5b1717,#951e1e);
-  border-color:#ff6565;
-  animation:explode .4s;
+  border-color:#ff6565;box-shadow:0 0 18px #ff525277;animation:bombImpact .4s;
 }
 .apple-cell.hidden{opacity:.7}
-.apple-progress{
-  text-align:center;
-  color:var(--gold);
-  font-size:13px;
-  margin:12px 0;
-}
-.notice{
-  text-align:center;
-  color:#777;
-  font-size:11px;
-  line-height:1.7;
-  margin:22px 0;
-}
-footer{
-  text-align:center;
-  color:#666;
-  font-size:11px;
-  padding:8px 15px 22px;
-}
-@media(min-width:480px){
-  .games{grid-template-columns:repeat(3,minmax(0,1fr))}
-}
+.apple-progress{text-align:center;color:var(--gold);font-size:13px;margin:12px 0}
+.notice{text-align:center;color:#777;font-size:11px;line-height:1.7;margin:22px 0}
+footer{text-align:center;color:#666;font-size:11px;padding:8px 15px 22px}
+@media(min-width:480px){.games{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){
-  *,*:before,*:after{
-    animation-duration:.01ms!important;
-    transition-duration:.01ms!important;
-  }
+  *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .game,.reel.winner,.mult.hot,.apple-cell.safe{animation:none!important}
 }
 </style>
 </head>
@@ -418,24 +294,12 @@ footer{
   <p class="section-note">6 игр · Чёрно-золотой стиль</p>
 
   <div class="games">
-    <button class="game" onclick="openGame('mines')">
-      <span class="icon">💣</span><strong>Mines</strong><small>Найди кристаллы</small>
-    </button>
-    <button class="game" onclick="openGame('aviator')">
-      <span class="icon">✈️</span><strong>Aviator</strong><small>Следи за полётом</small>
-    </button>
-    <button class="game" onclick="openGame('slots')">
-      <span class="icon">🎰</span><strong>Slots</strong><small>Крути барабаны</small>
-    </button>
-    <button class="game" onclick="openGame('dice')">
-      <span class="icon">🎲</span><strong>Dice</strong><small>Бросай кубик</small>
-    </button>
-    <button class="game" onclick="openGame('blackjack')">
-      <span class="icon">🃏</span><strong>21 очко</strong><small>Переиграй дилера</small>
-    </button>
-    <button class="game" onclick="openGame('apple')">
-      <span class="icon">🍏</span><strong>Apple Fortune</strong><small>Поднимайся по уровням</small>
-    </button>
+    <button class="game" onclick="openGame('mines')"><span class="icon">💣</span><strong>Mines</strong><small>Найди кристаллы</small></button>
+    <button class="game" onclick="openGame('aviator')"><span class="icon">✈️</span><strong>Aviator</strong><small>Следи за полётом</small></button>
+    <button class="game" onclick="openGame('slots')"><span class="icon">🎰</span><strong>Slots</strong><small>Крути барабаны</small></button>
+    <button class="game" onclick="openGame('dice')"><span class="icon">🎲</span><strong>Dice</strong><small>Бросай кубик</small></button>
+    <button class="game" onclick="openGame('blackjack')"><span class="icon">🃏</span><strong>21 очко</strong><small>Переиграй дилера</small></button>
+    <button class="game" onclick="openGame('apple')"><span class="icon">🍏</span><strong>Apple Fortune</strong><small>Поднимайся по уровням</small></button>
   </div>
 
   <section class="card panel" id="gamePanel">
@@ -559,6 +423,10 @@ function openGame(name){
   clearRound();
   currentGame = name;
   $('gamePanel').classList.add('show');
+  $('playButton').disabled = false;
+  $('playButton').style.display = 'block';
+  $('playButton').onclick = play;
+
   $('gameTitle').textContent = {
     mines:'💣 MINES',
     aviator:'✈️ AVIATOR',
@@ -568,8 +436,6 @@ function openGame(name){
     apple:'🍏 APPLE OF FORTUNE'
   }[name];
 
-  $('playButton').disabled = false;
-  $('playButton').onclick = play;
   $('playButton').textContent = {
     mines:'Начать игру',
     aviator:'Запустить самолёт',
@@ -591,7 +457,9 @@ function openGame(name){
 
 function closeGame(){
   clearRound();
+  currentGame = '';
   $('gamePanel').classList.remove('show');
+  $('playButton').style.display = 'block';
 }
 
 function play(){
@@ -606,6 +474,7 @@ function play(){
 
 function nextRoundButton(text){
   $('playButton').disabled = false;
+  $('playButton').style.display = 'block';
   $('playButton').textContent = text;
   $('playButton').onclick = play;
 }
@@ -625,15 +494,18 @@ function renderMines(){
   $('gameArea').querySelectorAll('[data-cell]').forEach(c=>{
     c.addEventListener('click',()=>pickMine(Number(c.dataset.cell),c));
   });
-  status('Начни игру и открывай клетки. Можно забрать выигрыш после первого кристалла.');
+  status('Начни игру и открывай клетки. После безопасного выбора можно забрать выигрыш.');
 }
 
 function playMines(){
-  const n = getBet(); if(!n)return;
+  const n = getBet();
+  if(!n) return;
   takeBet(n);
   mine = {bet:n,bomb:Math.floor(Math.random()*25),opened:[],active:true};
   $('gameArea').querySelectorAll('.cell').forEach(c=>{
-    c.className='cell'; c.textContent='?';
+    c.className='cell';
+    c.textContent='?';
+    c.disabled=false;
   });
   status('Открывай клетки или забери виртуальный выигрыш.');
   $('playButton').textContent='Забрать выигрыш';
@@ -641,21 +513,30 @@ function playMines(){
 }
 
 function pickMine(i,cell){
-  if(!mine || !mine.active || mine.opened.includes(i))return;
+  if(!mine || !mine.active || mine.opened.includes(i)) return;
+
   if(i===mine.bomb){
     mine.active=false;
     $('gameArea').querySelectorAll('.cell').forEach((c,j)=>{
-      if(j===mine.bomb){c.textContent='💣';c.classList.add('boom')}
-      else if(mine.opened.includes(j)){c.textContent='💎';c.classList.add('open')}
       c.disabled=true;
+      if(j===mine.bomb){
+        c.textContent='💣';
+        c.classList.add('boom');
+      }else if(mine.opened.includes(j)){
+        c.textContent='💎';
+        c.classList.add('open');
+      }
     });
     status('💥 Бомба! Виртуальная ставка потеряна.','lose');
     nextRoundButton('Играть ещё');
     return;
   }
+
   mine.opened.push(i);
   cell.classList.add('open');
   cell.textContent='💎';
+  cell.disabled=true;
+
   const mult=1+mine.opened.length*.18;
   status('💎 Кристаллов: '+mine.opened.length+' · Коэффициент x'+mult.toFixed(2));
 }
@@ -667,6 +548,7 @@ function cashMines(){
   }
   const win=Math.floor(mine.bet*(1+mine.opened.length*.18));
   mine.active=false;
+  $('gameArea').querySelectorAll('.cell').forEach(c=>c.disabled=true);
   payout(win);
   status('🎉 Забрано '+fmt(win)+'!','win');
   showWin();
@@ -682,41 +564,81 @@ function renderAviator(){
 }
 
 function playAviator(){
-  const n=getBet();if(!n)return;
+  const n=getBet();
+  if(!n) return;
+
   takeBet(n);
   busy=true;
   flightMultiplier=1;
+
   const crash=1.25+Math.random()*3.2;
+  const area=document.querySelector('.planearea');
+  const mult=$('mult');
+  const plane=$('plane');
+
+  if(area) area.classList.remove('crashed');
+  if(mult) mult.classList.remove('hot');
+  plane.textContent='✈️';
+  plane.style.transform='translate(0,0) rotate(0deg)';
+
   $('playButton').disabled=false;
   $('playButton').textContent='Забрать x1.00';
   $('playButton').onclick=()=>cashAviator(n);
-  status('Самолёт взлетел!');
+  status('✈️ Самолёт взлетел!');
+
+  const start=Date.now();
+
   timer=setInterval(()=>{
-    if(currentGame!=='aviator'){stopTimer();return}
-    flightMultiplier += .018 + flightMultiplier*.013;
-    const mult=$('mult');
-    const plane=$('plane');
-    if(!mult || !plane){stopTimer();return}
-    mult.textContent='x'+flightMultiplier.toFixed(2);
-    plane.style.transform='translate('+Math.min(125,(flightMultiplier-1)*30)+'px,'+
-      (-Math.min(72,(flightMultiplier-1)*17))+'px) rotate(-18deg)';
+    if(currentGame!=='aviator'){
+      stopTimer();
+      return;
+    }
+
+    const elapsed=(Date.now()-start)/1000;
+    flightMultiplier=1+elapsed*.16+elapsed*elapsed*.035;
+
+    if(mult){
+      mult.textContent='x'+flightMultiplier.toFixed(2);
+      if(flightMultiplier>=2) mult.classList.add('hot');
+    }
+
+    if(plane){
+      const x=Math.min(125,elapsed*18);
+      const y=Math.min(75,elapsed*10);
+      plane.style.transform=`translate(${x}px,${-y}px) rotate(-18deg)`;
+    }
+
     $('playButton').textContent='Забрать x'+flightMultiplier.toFixed(2);
 
     if(flightMultiplier>=crash){
       stopTimer();
-      plane.textContent='💨';
-      status('Самолёт улетел! Ставка потеряна.','lose');
+      if(plane){
+        plane.textContent='💨';
+        plane.style.transform='translate(145px,-90px) rotate(-25deg)';
+      }
+      if(area) area.classList.add('crashed');
+      if(mult) mult.classList.remove('hot');
+      status('💥 Полёт завершён. Виртуальная ставка потеряна.','lose');
       nextRoundButton('Играть ещё');
     }
-  },100);
+  },80);
 }
 
 function cashAviator(n){
-  if(!busy)return;
+  if(!busy || currentGame!=='aviator') return;
+
+  const finalMultiplier=flightMultiplier;
   stopTimer();
-  const win=Math.floor(n*flightMultiplier);
+
+  const win=Math.floor(n*finalMultiplier);
   payout(win);
-  status('✈️ Забрано '+fmt(win)+' при x'+flightMultiplier.toFixed(2)+'!','win');
+
+  const plane=$('plane');
+  const mult=$('mult');
+  if(plane) plane.style.transform='translate(125px,-75px) rotate(-18deg)';
+  if(mult) mult.classList.remove('hot');
+
+  status('✈️ Ты забрал '+fmt(win)+' при x'+finalMultiplier.toFixed(2)+'!','win');
   showWin();
   nextRoundButton('Играть ещё');
 }
@@ -730,17 +652,28 @@ function renderSlots(){
 }
 
 function playSlots(){
-  const n=getBet();if(!n)return;
+  const n=getBet();
+  if(!n) return;
+
   takeBet(n);
   busy=true;
+
   const reels=[...$('gameArea').querySelectorAll('.reel')];
   const symbols=['🍒','⭐','💎','7️⃣','🔔'];
   let ticks=0;
-  reels.forEach(r=>r.classList.add('spin'));
+
+  reels.forEach(r=>{
+    r.classList.remove('winner');
+    r.classList.add('spin');
+  });
   disablePlay('Барабаны вращаются…');
 
   timer=setInterval(()=>{
-    if(currentGame!=='slots'){stopTimer();return}
+    if(currentGame!=='slots'){
+      stopTimer();
+      return;
+    }
+
     ticks++;
     reels.forEach((r,i)=>{
       if(ticks<9+i*3){
@@ -750,17 +683,31 @@ function playSlots(){
 
     if(ticks>=15){
       stopTimer();
+
+      // Итоговая комбинация фиксируется один раз в конце раунда.
       const result=reels.map(()=>symbols[Math.floor(Math.random()*symbols.length)]);
       reels.forEach((r,i)=>{
         r.classList.remove('spin');
         r.textContent=result[i];
       });
+
       const same=result[0]===result[1] && result[1]===result[2];
-      const pair=result[0]===result[1]||result[1]===result[2]||result[0]===result[2];
+      const pair=result[0]===result[1] || result[1]===result[2] || result[0]===result[2];
       const mult=same?5:(pair?2:0);
       const win=n*mult;
-      if(win){payout(win);status('🎉 Комбинация! Выигрыш '+fmt(win),'win');showWin()}
-      else status('Совпадений нет. Попробуй ещё.','lose');
+
+      reels.forEach((r,i)=>{
+        const matches=result.filter(s=>s===result[i]).length;
+        if(matches>=2) r.classList.add('winner');
+      });
+
+      if(win>0){
+        payout(win);
+        status('🎉 Комбинация x'+mult+'! Выигрыш '+fmt(win),'win');
+        showWin();
+      }else{
+        status('Совпадений нет. Попробуй ещё.','lose');
+      }
       nextRoundButton('Крутить ещё');
     }
   },100);
@@ -773,24 +720,44 @@ function renderDice(){
 }
 
 function playDice(){
-  const n=getBet();if(!n)return;
+  const n=getBet();
+  if(!n) return;
+
   takeBet(n);
   busy=true;
+
   const d=$('dice');
-  d.classList.remove('roll');void d.offsetWidth;d.classList.add('roll');
   const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
   let ticks=0;
+  let finalValue=0;
+
+  d.classList.remove('roll');
+  void d.offsetWidth;
+  d.classList.add('roll');
   disablePlay('Кубик бросается…');
+
   timer=setInterval(()=>{
-    if(currentGame!=='dice'){stopTimer();return}
-    const v=Math.floor(Math.random()*6);
-    d.textContent=faces[v];
+    if(currentGame!=='dice'){
+      stopTimer();
+      return;
+    }
+
+    finalValue=Math.floor(Math.random()*6);
+    d.textContent=faces[finalValue];
     ticks++;
+
     if(ticks>=9){
       stopTimer();
-      const win=v>=3?n*2:0;
-      if(win){payout(win);status('🎉 Выпало '+(v+1)+'. Выигрыш '+fmt(win),'win');showWin()}
-      else status('Выпало '+(v+1)+'. Без выигрыша.','lose');
+      d.classList.remove('roll');
+
+      const win=finalValue>=3?n*2:0;
+      if(win){
+        payout(win);
+        status('🎉 Выпало '+(finalValue+1)+'. Выигрыш '+fmt(win),'win');
+        showWin();
+      }else{
+        status('Выпало '+(finalValue+1)+'. Без выигрыша.','lose');
+      }
       nextRoundButton('Бросить ещё');
     }
   },100);
@@ -802,7 +769,9 @@ const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 
 function newDeck(){
   const deck=[];
-  for(const s of suits)for(const r of ranks)deck.push({suit:s,rank:r});
+  for(const s of suits){
+    for(const r of ranks) deck.push({suit:s,rank:r});
+  }
   for(let i=deck.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
     [deck[i],deck[j]]=[deck[j],deck[i]];
@@ -811,8 +780,8 @@ function newDeck(){
 }
 
 function cardValue(card){
-  if(['J','Q','K'].includes(card.rank))return 10;
-  if(card.rank==='A')return 11;
+  if(['J','Q','K'].includes(card.rank)) return 10;
+  if(card.rank==='A') return 11;
   return Number(card.rank);
 }
 
@@ -820,14 +789,17 @@ function handValue(hand){
   let total=0,aces=0;
   hand.forEach(c=>{
     total+=cardValue(c);
-    if(c.rank==='A')aces++;
+    if(c.rank==='A') aces++;
   });
-  while(total>21 && aces>0){total-=10;aces--}
+  while(total>21 && aces>0){
+    total-=10;
+    aces--;
+  }
   return total;
 }
 
 function cardHTML(card,hidden=false){
-  if(hidden)return '<div class="playing-card back">✦</div>';
+  if(hidden) return '<div class="playing-card back">✦</div>';
   const red=card.suit==='♥'||card.suit==='♦';
   return '<div class="playing-card '+(red?'red':'')+'"><span>'+
     card.rank+card.suit+'</span><span style="text-align:right">'+card.suit+'</span></div>';
@@ -845,6 +817,7 @@ function renderBlackjack(){
       '<button class="btn secondary" id="hitButton">Ещё карту</button>'+
       '<button class="btn" id="standButton">Остановиться</button>'+
     '</div>';
+
   $('hitButton').onclick=hitBlackjack;
   $('standButton').onclick=standBlackjack;
   status('Набери больше очков, чем дилер, не превышая 21.');
@@ -860,31 +833,44 @@ function updateBlackjackUI(revealDealer=false){
 }
 
 function startBlackjack(){
-  const n=getBet();if(!n)return;
+  const n=getBet();
+  if(!n) return;
+
   takeBet(n);
   blackjack={bet:n,deck:newDeck(),player:[],dealer:[],active:true};
   blackjack.player.push(blackjack.deck.pop(),blackjack.deck.pop());
   blackjack.dealer.push(blackjack.deck.pop(),blackjack.deck.pop());
+
   updateBlackjackUI(false);
   $('bjActions').style.display='flex';
   $('playButton').style.display='none';
   status('Твой ход: возьми карту или остановись.');
-  if(handValue(blackjack.player)===21)standBlackjack();
+
+  if(handValue(blackjack.player)===21) standBlackjack();
 }
 
 function hitBlackjack(){
-  if(!blackjack||!blackjack.active)return;
+  if(!blackjack || !blackjack.active) return;
+
   blackjack.player.push(blackjack.deck.pop());
   updateBlackjackUI(false);
+
   const score=handValue(blackjack.player);
-  if(score>=21)standBlackjack();
-  else status('У тебя '+score+' очков. Ещё карту или остановиться?');
+  if(score>=21){
+    standBlackjack();
+  }else{
+    status('У тебя '+score+' очков. Ещё карту или остановиться?');
+  }
 }
 
 function standBlackjack(){
-  if(!blackjack||!blackjack.active)return;
+  if(!blackjack || !blackjack.active) return;
+
   blackjack.active=false;
-  while(handValue(blackjack.dealer)<17)blackjack.dealer.push(blackjack.deck.pop());
+  while(handValue(blackjack.dealer)<17){
+    blackjack.dealer.push(blackjack.deck.pop());
+  }
+
   updateBlackjackUI(true);
   $('bjActions').style.display='none';
   $('playButton').style.display='block';
@@ -892,10 +878,11 @@ function standBlackjack(){
   const p=handValue(blackjack.player);
   const d=handValue(blackjack.dealer);
   let win=0;
+
   if(p>21){
     status('Перебор! У тебя '+p+' очков.','lose');
-  }else if(d>21||p>d){
-    win=p===21&&blackjack.player.length===2?
+  }else if(d>21 || p>d){
+    win=p===21 && blackjack.player.length===2?
       Math.floor(blackjack.bet*2.5):blackjack.bet*2;
     payout(win);
     status('🎉 Ты выиграл! Возврат '+fmt(win)+'.','win');
@@ -907,6 +894,7 @@ function standBlackjack(){
   }else{
     status('Дилер победил. Попробуй ещё.','lose');
   }
+
   nextRoundButton('Играть ещё');
 }
 
@@ -918,18 +906,21 @@ function renderApple(){
   $('gameArea').innerHTML=
     '<div class="apple-progress" id="appleProgress">Уровень 0 из '+APPLE_LEVELS+'</div>'+
     '<div class="apple-board" id="appleBoard"></div>'+
-    '<div class="muted" style="margin-top:12px">На каждом уровне выбери одно из четырёх яблок. Одно безопасное яблоко открывается на уровне.</div>';
-  drawAppleBoard(false);
+    '<div class="muted" style="margin-top:12px">На каждом уровне выбери одно из трёх яблок. Одно безопасное яблоко на каждом уровне.</div>';
+  drawAppleBoard();
   status('Начни игру, выбери яблоко и забирай виртуальный выигрыш после безопасного выбора.');
 }
 
-function drawAppleBoard(reveal=false){
+function drawAppleBoard(){
   const board=$('appleBoard');
-  if(!board)return;
+  if(!board) return;
+
   board.innerHTML='';
+
   for(let level=APPLE_LEVELS-1;level>=0;level--){
     const row=document.createElement('div');
     row.className='apple-row';
+
     const label=document.createElement('div');
     label.className='apple-level';
     label.textContent='×'+APPLE_MULTS[level].toFixed(2);
@@ -937,17 +928,23 @@ function drawAppleBoard(reveal=false){
 
     for(let j=0;j<3;j++){
       const cell=document.createElement('button');
+      cell.type='button';
       cell.className='apple-cell';
       cell.textContent='🍏';
       cell.disabled=true;
+      cell.dataset.level=String(level);
+      cell.dataset.index=String(j);
       row.appendChild(cell);
     }
+
     board.appendChild(row);
   }
 }
 
 function startApple(){
-  const n=getBet();if(!n)return;
+  const n=getBet();
+  if(!n) return;
+
   takeBet(n);
   apple={
     bet:n,
@@ -955,7 +952,8 @@ function startApple(){
     active:true,
     safe:Array.from({length:APPLE_LEVELS},()=>Math.floor(Math.random()*3))
   };
-  drawAppleBoard(true);
+
+  drawAppleBoard();
   updateAppleBoard();
   status('Выбери одно из трёх яблок на нижнем уровне.');
   $('playButton').textContent='Забрать выигрыш';
@@ -963,20 +961,29 @@ function startApple(){
 }
 
 function updateAppleBoard(){
+  if(!apple) return;
+
   const rows=[...$('appleBoard').querySelectorAll('.apple-row')];
-  rows.forEach((row,rowIndex)=>{
-    const level=APPLE_LEVELS-1-rowIndex;
+
+  rows.forEach(row=>{
+    const level=Number(row.querySelector('.apple-cell').dataset.level);
     const cells=[...row.querySelectorAll('.apple-cell')];
+
     cells.forEach((cell,j)=>{
       cell.disabled=true;
       cell.onclick=null;
       cell.className='apple-cell';
       cell.textContent='🍏';
+
       if(level<apple.level){
         cell.disabled=true;
-        if(j===apple.safe[level])cell.classList.add('safe');
-        cell.textContent=j===apple.safe[level]?'🍏':'·';
-      }else if(level===apple.level&&apple.active){
+        if(j===apple.safe[level]){
+          cell.classList.add('safe');
+          cell.textContent='🍏';
+        }else{
+          cell.textContent='·';
+        }
+      }else if(level===apple.level && apple.active){
         cell.disabled=false;
         cell.onclick=()=>pickApple(level,j,cell);
       }else{
@@ -985,28 +992,38 @@ function updateAppleBoard(){
       }
     });
   });
-  $('appleProgress').textContent='Уровень '+apple.level+' из '+APPLE_LEVELS+
-    ' · Возврат '+fmt(apple.bet*(apple.level?APPLE_MULTS[apple.level-1]:1));
+
+  const currentReturn=apple.level===0?
+    apple.bet:Math.floor(apple.bet*APPLE_MULTS[apple.level-1]);
+
+  $('appleProgress').textContent=
+    'Уровень '+apple.level+' из '+APPLE_LEVELS+' · Возврат '+fmt(currentReturn);
 }
 
 function pickApple(level,index,cell){
-  if(!apple||!apple.active||level!==apple.level)return;
-  const row=[...$('appleBoard').querySelectorAll('.apple-row')]
-    .find(r=>r.querySelector('.apple-cell')?.onclick!==null);
+  if(!apple || !apple.active || level!==apple.level) return;
+
   const safeIndex=apple.safe[level];
 
   if(index!==safeIndex){
     apple.active=false;
     cell.textContent='💥';
     cell.classList.add('bad');
+
     const rows=[...$('appleBoard').querySelectorAll('.apple-row')];
     const actualRow=rows.find(r=>r.contains(cell));
+
     if(actualRow){
       actualRow.querySelectorAll('.apple-cell').forEach((c,j)=>{
         c.disabled=true;
-        if(j===safeIndex){c.textContent='🍏';c.classList.add('safe')}
+        c.onclick=null;
+        if(j===safeIndex){
+          c.textContent='🍏';
+          c.classList.add('safe');
+        }
       });
     }
+
     status('💥 Неудача! Виртуальная ставка потеряна.','lose');
     nextRoundButton('Играть ещё');
     return;
@@ -1023,28 +1040,30 @@ function pickApple(level,index,cell){
     payout(win);
     status('🍏 Все уровни пройдены! Выигрыш '+fmt(win)+'!','win');
     showWin();
-    nextRoundButton('Играть ещё');
     updateAppleBoard();
+    nextRoundButton('Играть ещё');
     return;
   }
 
   updateAppleBoard();
+
   const potential=Math.floor(apple.bet*APPLE_MULTS[apple.level-1]);
-  status('🍏 Безопасно! Текущий возврат: '+fmt(potential)+'. Можешь забрать его или рискнуть дальше.','win');
+  status('🍏 Безопасно! Возврат: '+fmt(potential)+'. Можешь забрать его или рискнуть дальше.','win');
 }
 
 function cashApple(){
-  if(!apple||!apple.active||apple.level===0){
+  if(!apple || !apple.active || apple.level===0){
     status('Сначала выбери безопасное яблоко.');
     return;
   }
+
   const win=Math.floor(apple.bet*APPLE_MULTS[apple.level-1]);
   apple.active=false;
   payout(win);
   status('🍏 Ты забрал '+fmt(win)+'!','win');
   showWin();
-  nextRoundButton('Играть ещё');
   updateAppleBoard();
+  nextRoundButton('Играть ещё');
 }
 
 /* ДЕМО-БАЛАНС */
@@ -1055,13 +1074,20 @@ function moneyChange(mode){
     'Демо-снятие. Введи сумму виртуальных UZS:',
     '10000'
   );
-  if(raw===null)return;
+
+  if(raw===null) return;
+
   const n=Number(raw);
-  if(!Number.isSafeInteger(n)||n<1000){
+  if(!Number.isSafeInteger(n) || n<1000){
     alert('Введи целую сумму не менее 1 000 UZS.');
     return;
   }
+
   if(mode==='deposit'){
+    if(!Number.isSafeInteger(balance+n)){
+      alert('Сумма слишком большая.');
+      return;
+    }
     balance+=n;
     updateBalance();
     alert('Виртуальный баланс увеличен на '+fmt(n)+'. Реального платежа не было.');
